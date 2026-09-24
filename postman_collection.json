@@ -1,0 +1,174 @@
+{
+  "info": {
+    "name": "Fuel Stop & Route Optimizer API",
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "description": "Postman collection for testing the Fuel Stop and Route Optimizer API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Health Check",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/health/",
+          "protocol": "http",
+          "host": ["127", "0", "0", "1"],
+          "port": "8000",
+          "path": ["api", "health", ""]
+        },
+        "description": "Checks the API status and total fuel stations loaded in memory."
+      }
+    },
+    {
+      "name": "2. Route: New York to Chicago (~790 mi, 1 Fuel Stop)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"start\": \"New York, NY\",\n  \"finish\": \"Chicago, IL\"\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/route/",
+          "protocol": "http",
+          "host": ["127", "0", "0", "1"],
+          "port": "8000",
+          "path": ["api", "route", ""]
+        },
+        "description": "Calculates route and finds optimal fuel stop near Youngstown, OH."
+      }
+    },
+    {
+      "name": "3. Route: New York to Los Angeles (~2790 mi, Cross-Country 6 Stops)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"start\": \"New York, NY\",\n  \"finish\": \"Los Angeles, CA\"\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/route/",
+          "protocol": "http",
+          "host": ["127", "0", "0", "1"],
+          "port": "8000",
+          "path": ["api", "route", ""]
+        },
+        "description": "Cross-country journey requiring multiple fuel stops spaced <= 500 miles."
+      }
+    },
+    {
+      "name": "4. Route: Short Trip (<500 mi, 0 Fuel Stops)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"start\": \"New York, NY\",\n  \"finish\": \"Philadelphia, PA\"\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/route/",
+          "protocol": "http",
+          "host": ["127", "0", "0", "1"],
+          "port": "8000",
+          "path": ["api", "route", ""]
+        },
+        "description": "Trip within vehicle range (95 miles), completed with 0 en-route stops."
+      }
+    },
+    {
+      "name": "5. Route: Direct Coordinates Input",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"start\": \"30.2672, -97.7431\",\n  \"finish\": \"32.7767, -96.7970\"\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/route/",
+          "protocol": "http",
+          "host": ["127", "0", "0", "1"],
+          "port": "8000",
+          "path": ["api", "route", ""]
+        },
+        "description": "Demonstrates bypassing external geocoding by supplying latitude and longitude directly."
+      }
+    },
+    {
+      "name": "6. Validation Error: Missing finish (Expect 400)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"start\": \"New York, NY\"\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/route/",
+          "protocol": "http",
+          "host": ["127", "0", "0", "1"],
+          "port": "8000",
+          "path": ["api", "route", ""]
+        },
+        "description": "Tests validation error response when a required field is missing."
+      }
+    },
+    {
+      "name": "7. Error: Unknown Location (Expect 404)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"start\": \"FakeInvalidCityXYZ98765\",\n  \"finish\": \"Chicago, IL\"\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/route/",
+          "protocol": "http",
+          "host": ["127", "0", "0", "1"],
+          "port": "8000",
+          "path": ["api", "route", ""]
+        },
+        "description": "Tests handling when an address cannot be found by geocoding."
+      }
+    }
+  ]
+}
