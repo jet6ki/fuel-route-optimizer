@@ -234,11 +234,6 @@
     <!-- Right Interactive Map Area -->
     <main class="flex-1 relative bg-slate-950">
       <div id="map"></div>
-
-      <!-- Map Overlay Indicator -->
-      <div class="absolute top-4 right-4 z-[400] bg-slate-900/90 backdrop-blur border border-slate-800 text-slate-300 px-3 py-1.5 rounded-lg text-xs shadow-md pointer-events-none">
-        OpenStreetMap / CartoDB Voyager
-      </div>
     </main>
 
   </div>
@@ -249,12 +244,26 @@
       zoomControl: true
     }).setView([39.8283, -98.5795], 4);
 
-    // High quality, reliable CartoDB Voyager tiles (No OSM volunteer server 403 blocks)
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    // High quality, 100% free, watermark-free Esri World Street Map (No API key, no 403 blocks)
+    const esriStreets = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
       maxZoom: 19,
-      subdomains: 'abcd',
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-    }).addTo(map);
+      attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, METI, TomTom'
+    });
+
+    // Alternative OpenStreetMap Humanitarian layer (No watermark, free)
+    const osmHot = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    });
+
+    // Default to clean Esri Streets
+    esriStreets.addTo(map);
+
+    // Add clean layer switcher
+    L.control.layers({
+      "Highways & Streets": esriStreets,
+      "OpenStreetMap (HOT)": osmHot
+    }, null, { position: 'topright' }).addTo(map);
 
     let routeLayer = null;
     let markersLayer = L.layerGroup().addTo(map);
