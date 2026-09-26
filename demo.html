@@ -57,15 +57,31 @@
       isolation: isolate;
       background:
         linear-gradient(135deg, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0.015) 100%),
-        rgba(10, 10, 14, 0.38);
-      backdrop-filter: blur(24px) saturate(210%) contrast(1.08);
-      -webkit-backdrop-filter: blur(24px) saturate(210%) contrast(1.08);
+        rgba(10, 10, 14, 0.50);
+      backdrop-filter: blur(28px) saturate(210%) contrast(1.08);
+      -webkit-backdrop-filter: blur(28px) saturate(210%) contrast(1.08);
       border: 1px solid rgba(255, 255, 255, 0.16);
       box-shadow:
         inset 0 1px 1px 0 rgba(255, 255, 255, 0.32),
         inset 0 -1px 1px 0 rgba(255, 255, 255, 0.04),
         0 24px 60px -12px rgba(0, 0, 0, 0.75),
         0 0 0 1px rgba(0, 0, 0, 0.35);
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+
+    /* Street Mode Dark Tile Inversion (Apple Navigation Night Streets) */
+    .streets-night-filter {
+      filter: brightness(0.55) invert(1) contrast(1.4) hue-rotate(195deg) saturate(0.55);
+    }
+
+    /* Adaptive Liquid Glass for Streets mode: deeper obsidian backdrop while preserving blur and refraction */
+    body.streets-mode .liquid-glass-island {
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.015) 100%),
+        rgba(10, 12, 18, 0.75) !important;
+      backdrop-filter: blur(32px) saturate(200%) contrast(1.15) !important;
+      -webkit-backdrop-filter: blur(32px) saturate(200%) contrast(1.15) !important;
+      border-color: rgba(255, 255, 255, 0.2) !important;
     }
 
     /* Frosted crystalline internal cards */
@@ -260,21 +276,18 @@
   <aside id="main-panel"
          class="fixed top-5 left-5 z-[500] w-[calc(100vw-2.5rem)] sm:w-[395px] max-h-[calc(100vh-2.5rem)] liquid-glass-island rounded-3xl flex flex-col pointer-events-auto transition-all duration-300 overflow-hidden">
 
-    <!-- Island Header: Commercial Driver Edition -->
+    <!-- Island Header: Clean Modern Typography -->
     <div class="px-5 py-4 border-b border-white/[0.08] flex items-center justify-between shrink-0">
       <div>
-        <div class="flex items-center space-x-2">
-          <h1 class="font-brand text-[22px] sm:text-2xl font-black tracking-[-0.04em] text-white leading-none">
-            Route<span class="text-amber-400">Fuel</span>
-          </h1>
-          <span class="text-[10px] font-semibold uppercase tracking-wider text-amber-400 bg-amber-400/10 border border-amber-400/20 px-2 py-0.5 rounded-full font-brand">Driver Edition</span>
-        </div>
-        <p class="text-[11px] text-neutral-400 mt-1 font-medium tracking-tight">Commercial Corridor &amp; Refuel Optimizer</p>
+        <h1 class="font-brand text-[23px] sm:text-[25px] font-black tracking-[-0.04em] text-white leading-none">
+          Route<span class="text-amber-400">Fuel</span>
+        </h1>
+        <p class="text-[11px] text-neutral-300 mt-1.5 font-medium tracking-tight">Commercial Corridor &amp; Refuel Optimizer</p>
       </div>
 
       <!-- Minimize / Expand Toggle -->
       <button id="toggle-panel-btn" title="Toggle panel"
-              class="w-7 h-7 rounded-full glass-chip flex items-center justify-center text-neutral-400 hover:text-white transition">
+              class="w-7 h-7 rounded-full glass-chip flex items-center justify-center text-neutral-300 hover:text-white transition">
         <svg id="toggle-icon" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
         </svg>
@@ -287,17 +300,17 @@
 
       <!-- Route Inputs -->
       <form id="route-form" class="space-y-3">
-        <div class="space-y-1.5">
+        <div class="space-y-2.5">
           
           <!-- Origin Field with Dropdown -->
           <div class="relative" id="start-wrapper">
             <div class="flex items-center justify-between mb-1 pl-1">
-              <label class="block text-[11px] font-medium text-neutral-400">Origin</label>
-              <span class="text-[10px] text-neutral-500 font-mono">Select or type</span>
+              <label class="block text-[11px] font-semibold text-neutral-300">Origin</label>
+              <span class="text-[10px] text-neutral-400 font-mono">Select or type</span>
             </div>
             <div class="relative flex items-center">
               <input type="text" id="start-input" value="New York, NY" required autocomplete="off" placeholder="Select origin or enter city"
-                     class="w-full glass-input text-white text-xs sm:text-sm rounded-xl px-3.5 pr-8 py-2.5 focus:outline-none" />
+                     class="w-full glass-input text-white text-xs sm:text-sm rounded-xl pl-3.5 pr-9 py-2.5 focus:outline-none" />
               <button type="button" id="start-chevron-btn" title="Choose origin from hub list"
                       class="absolute right-2 w-6 h-6 rounded-lg text-neutral-400 hover:text-white flex items-center justify-center transition">
                 <svg id="start-chevron-icon" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -308,33 +321,36 @@
             <!-- Glass Dropdown Menu for Origin -->
             <div id="start-dropdown"
                  class="hidden absolute left-0 right-0 top-full mt-1.5 z-40 max-h-52 overflow-y-auto custom-scroll liquid-glass-island rounded-2xl p-1.5 shadow-2xl border border-white/20 bg-neutral-950/95 backdrop-blur-2xl">
-              <div class="px-2.5 py-1 text-[10px] font-semibold text-neutral-400 uppercase tracking-wider border-b border-white/[0.08] mb-1 flex items-center justify-between">
+              <div class="px-2.5 py-1 text-[10px] font-semibold text-neutral-300 uppercase tracking-wider border-b border-white/[0.08] mb-1 flex items-center justify-between">
                 <span>Major Logistics Hubs</span>
-                <span class="text-[9px] text-neutral-500 font-mono">14 Hubs</span>
+                <span class="text-[9px] text-neutral-400 font-mono">14 Hubs</span>
               </div>
               <div id="start-dropdown-list" class="space-y-0.5"></div>
             </div>
           </div>
 
-          <!-- Centered Tactile Glass Swap Button -->
-          <div class="flex justify-center -my-0.5 relative z-10">
-            <button type="button" id="swap-btn" title="Swap locations"
-                    class="w-7 h-7 rounded-full glass-chip flex items-center justify-center text-neutral-400 hover:text-white active:scale-90 shadow-md">
-              <svg class="w-3.5 h-3.5 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <!-- Aligned Tactile Glass Swap Row -->
+          <div class="flex items-center justify-between px-1 py-0.5">
+            <div class="h-px flex-1 bg-white/[0.08]"></div>
+            <button type="button" id="swap-btn" title="Swap origin and destination"
+                    class="mx-3 px-3 py-1 rounded-full glass-chip flex items-center space-x-1.5 text-[11px] font-medium text-neutral-200 hover:text-white transition active:scale-95 shadow-sm">
+              <svg class="w-3.5 h-3.5 text-neutral-300 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
               </svg>
+              <span>Swap</span>
             </button>
+            <div class="h-px flex-1 bg-white/[0.08]"></div>
           </div>
 
           <!-- Destination Field with Dropdown -->
           <div class="relative" id="finish-wrapper">
             <div class="flex items-center justify-between mb-1 pl-1">
-              <label class="block text-[11px] font-medium text-neutral-400">Destination</label>
-              <span class="text-[10px] text-neutral-500 font-mono">Select or type</span>
+              <label class="block text-[11px] font-semibold text-neutral-300">Destination</label>
+              <span class="text-[10px] text-neutral-400 font-mono">Select or type</span>
             </div>
             <div class="relative flex items-center">
               <input type="text" id="finish-input" value="Chicago, IL" required autocomplete="off" placeholder="Select destination or enter city"
-                     class="w-full glass-input text-white text-xs sm:text-sm rounded-xl px-3.5 pr-8 py-2.5 focus:outline-none" />
+                     class="w-full glass-input text-white text-xs sm:text-sm rounded-xl pl-3.5 pr-9 py-2.5 focus:outline-none" />
               <button type="button" id="finish-chevron-btn" title="Choose destination from hub list"
                       class="absolute right-2 w-6 h-6 rounded-lg text-neutral-400 hover:text-white flex items-center justify-center transition">
                 <svg id="finish-chevron-icon" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -345,9 +361,9 @@
             <!-- Glass Dropdown Menu for Destination -->
             <div id="finish-dropdown"
                  class="hidden absolute left-0 right-0 top-full mt-1.5 z-40 max-h-52 overflow-y-auto custom-scroll liquid-glass-island rounded-2xl p-1.5 shadow-2xl border border-white/20 bg-neutral-950/95 backdrop-blur-2xl">
-              <div class="px-2.5 py-1 text-[10px] font-semibold text-neutral-400 uppercase tracking-wider border-b border-white/[0.08] mb-1 flex items-center justify-between">
+              <div class="px-2.5 py-1 text-[10px] font-semibold text-neutral-300 uppercase tracking-wider border-b border-white/[0.08] mb-1 flex items-center justify-between">
                 <span>Major Logistics Hubs</span>
-                <span class="text-[9px] text-neutral-500 font-mono">14 Hubs</span>
+                <span class="text-[9px] text-neutral-400 font-mono">14 Hubs</span>
               </div>
               <div id="finish-dropdown-list" class="space-y-0.5"></div>
             </div>
@@ -389,34 +405,34 @@
         <!-- Metrics Grid (Monochrome Glass with Amber Accent) -->
         <div class="grid grid-cols-2 gap-2">
           <div class="liquid-glass-card p-2.5 rounded-2xl">
-            <span class="text-[10px] font-medium text-neutral-400 uppercase tracking-wider block">Total Distance</span>
+            <span class="text-[10px] font-semibold text-neutral-300 uppercase tracking-wider block">Total Distance</span>
             <span id="stat-distance" class="text-base sm:text-lg font-bold text-white tracking-tight mt-0.5 block tabular-nums">0 mi</span>
           </div>
           <div class="liquid-glass-card p-2.5 rounded-2xl">
-            <span class="text-[10px] font-medium text-neutral-400 uppercase tracking-wider block">Est. Drive Time</span>
+            <span class="text-[10px] font-semibold text-neutral-300 uppercase tracking-wider block">Est. Drive Time</span>
             <span id="stat-duration" class="text-base sm:text-lg font-bold text-white tracking-tight mt-0.5 block tabular-nums">0 hrs</span>
           </div>
           <div class="liquid-glass-card p-2.5 rounded-2xl">
-            <span class="text-[10px] font-medium text-neutral-400 uppercase tracking-wider block">Fuel Stops</span>
+            <span class="text-[10px] font-semibold text-neutral-300 uppercase tracking-wider block">Fuel Stops</span>
             <span id="stat-stops" class="text-base sm:text-lg font-bold text-amber-400 tracking-tight mt-0.5 block tabular-nums">0</span>
           </div>
           <div class="liquid-glass-card p-2.5 rounded-2xl">
-            <span class="text-[10px] font-medium text-neutral-400 uppercase tracking-wider block">Total Fuel Cost</span>
+            <span class="text-[10px] font-semibold text-neutral-300 uppercase tracking-wider block">Total Fuel Cost</span>
             <span id="stat-cost" class="text-base sm:text-lg font-bold text-white tracking-tight mt-0.5 block tabular-nums">$0.00</span>
           </div>
         </div>
 
         <!-- Strategy Note -->
-        <div id="summary-note" class="text-[11px] text-neutral-400 liquid-glass-card p-3 rounded-xl leading-relaxed"></div>
+        <div id="summary-note" class="text-[11px] text-neutral-200 liquid-glass-card p-3 rounded-xl leading-relaxed font-normal"></div>
 
         <!-- Driver Trip Manifest -->
         <div>
           <div class="flex items-center justify-between mb-2 px-1">
             <div class="flex items-center space-x-1.5">
               <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-              <span class="text-[11px] font-semibold text-neutral-300 uppercase tracking-wider">Driver Trip Manifest</span>
+              <span class="text-[11px] font-semibold text-neutral-200 uppercase tracking-wider">Driver Trip Manifest</span>
             </div>
-            <span id="stops-counter" class="text-[10px] text-neutral-400 font-mono">0 stops</span>
+            <span id="stops-counter" class="text-[10px] text-neutral-300 font-mono">0 stops</span>
           </div>
 
           <div id="stops-list" class="space-y-2">
@@ -425,8 +441,8 @@
 
           <!-- Driver Action: Copy Dispatch Manifest -->
           <button type="button" id="copy-manifest-btn"
-                  class="w-full mt-3 glass-chip py-2.5 rounded-xl text-xs font-medium text-neutral-300 hover:text-white flex items-center justify-center space-x-2 transition active:scale-[0.98]">
-            <svg class="w-3.5 h-3.5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  class="w-full mt-3 glass-chip py-2.5 rounded-xl text-xs font-medium text-neutral-200 hover:text-white flex items-center justify-center space-x-2 transition active:scale-[0.98]">
+            <svg class="w-3.5 h-3.5 text-neutral-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
             </svg>
             <span id="copy-btn-text">Copy Trip Manifest</span>
@@ -468,6 +484,9 @@
     btnDark.addEventListener('click', () => {
       map.removeLayer(streetTiles);
       darkTiles.addTo(map);
+      document.body.classList.remove('streets-mode');
+      const tilePane = map.getPane('tilePane');
+      if (tilePane) tilePane.classList.remove('streets-night-filter');
       btnDark.className = "px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-white text-black transition";
       btnStreets.className = "px-2.5 py-0.5 rounded-full text-[11px] font-medium text-neutral-400 hover:text-white transition";
     });
@@ -475,6 +494,9 @@
     btnStreets.addEventListener('click', () => {
       map.removeLayer(darkTiles);
       streetTiles.addTo(map);
+      document.body.classList.add('streets-mode');
+      const tilePane = map.getPane('tilePane');
+      if (tilePane) tilePane.classList.add('streets-night-filter');
       btnStreets.className = "px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-white text-black transition";
       btnDark.className = "px-2.5 py-0.5 rounded-full text-[11px] font-medium text-neutral-400 hover:text-white transition";
     });
@@ -811,13 +833,13 @@
               </span>
               <div>
                 <h4 class="text-xs font-semibold text-white">${stop.station_name}</h4>
-                <p class="text-[11px] text-neutral-400">${stop.city}, ${stop.state}</p>
-                <p class="text-[10px] text-neutral-500 mt-0.5 font-mono">Mile ${stop.route_mile} &bull; Leg: ${stop.distance_from_last_stop_miles} mi</p>
+                <p class="text-[11px] text-neutral-300">${stop.city}, ${stop.state}</p>
+                <p class="text-[10px] text-neutral-400 mt-0.5 font-mono">Mile ${stop.route_mile} &bull; Leg: ${stop.distance_from_last_stop_miles} mi</p>
               </div>
             </div>
             <div class="text-right">
               <span class="text-xs font-semibold text-amber-400 font-mono">$${stop.fuel_price_per_gallon.toFixed(3)}/gal</span>
-              <p class="text-[10px] text-neutral-400 mt-0.5 font-mono">${stop.gallons_refueled} gal = <strong class="text-white">$${stop.leg_fuel_cost_usd.toFixed(2)}</strong></p>
+              <p class="text-[10px] text-neutral-300 mt-0.5 font-mono">${stop.gallons_refueled} gal = <strong class="text-white">$${stop.leg_fuel_cost_usd.toFixed(2)}</strong></p>
             </div>
           `;
           list.appendChild(item);
