@@ -46,83 +46,95 @@
       z-index: 1;
     }
 
-    /* Apple Liquid Glass web approximation (Appendix C skeleton) */
+    /* Apple Liquid Glass Web Approximation with Deep Background Bleed */
     .liquid-glass-island {
       position: relative;
       isolation: isolate;
       background:
-        linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
-        rgba(10, 10, 10, 0.72);
-      backdrop-filter: blur(32px) saturate(180%) contrast(1.05);
-      -webkit-backdrop-filter: blur(32px) saturate(180%) contrast(1.05);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+        linear-gradient(135deg, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0.015) 100%),
+        rgba(10, 10, 14, 0.38);
+      backdrop-filter: blur(24px) saturate(210%) contrast(1.08);
+      -webkit-backdrop-filter: blur(24px) saturate(210%) contrast(1.08);
+      border: 1px solid rgba(255, 255, 255, 0.16);
       box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.22),
-        inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-        0 24px 60px -12px rgba(0, 0, 0, 0.85);
+        inset 0 1px 1px 0 rgba(255, 255, 255, 0.32),
+        inset 0 -1px 1px 0 rgba(255, 255, 255, 0.04),
+        0 24px 60px -12px rgba(0, 0, 0, 0.75),
+        0 0 0 1px rgba(0, 0, 0, 0.35);
     }
 
-    /* Frosted glass internal cards */
+    /* Frosted crystalline internal cards */
     .liquid-glass-card {
       background: rgba(255, 255, 255, 0.035);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
       border: 1px solid rgba(255, 255, 255, 0.08);
-      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease, border-color 0.2s ease;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease, border-color 0.2s ease, box-shadow 0.28s ease;
     }
     .liquid-glass-card:hover {
-      background: rgba(255, 255, 255, 0.065);
-      border-color: rgba(255, 255, 255, 0.16);
-      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 10px 24px -8px rgba(0, 0, 0, 0.5);
     }
 
     /* Minimalist tactile chips */
     .glass-chip {
       background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.09);
-      transition: all 0.18s ease;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .glass-chip:hover {
       background: rgba(255, 255, 255, 0.12);
-      border-color: rgba(255, 255, 255, 0.22);
+      border-color: rgba(255, 255, 255, 0.24);
       color: #ffffff;
       transform: translateY(-1px);
     }
+    .glass-chip:active {
+      transform: scale(0.96);
+    }
 
-    /* Outlined clean input with focus ring */
+    /* Outlined clean translucent input with focus ring */
     .glass-input {
-      background: rgba(18, 18, 20, 0.65);
-      border: 1px solid rgba(255, 255, 255, 0.09);
-      transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+      background: rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25);
+      transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .glass-input:focus {
-      background: rgba(24, 24, 27, 0.95);
-      border-color: rgba(255, 255, 255, 0.38);
-      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
+      background: rgba(0, 0, 0, 0.42);
+      border-color: rgba(255, 255, 255, 0.45);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1), inset 0 1px 2px rgba(0, 0, 0, 0.25);
     }
 
-    /* Map fuel stop markers */
+    /* Map fuel stop markers with amber bloom */
     .map-stop-pill {
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      background: rgba(12, 12, 14, 0.92);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
+      background: rgba(10, 10, 14, 0.78);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       color: #ffffff;
       padding: 3.5px 9px 3.5px 5px;
       border-radius: 9999px;
       border: 1px solid rgba(245, 158, 11, 0.65);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.15);
       font-size: 11px;
       font-weight: 600;
       white-space: nowrap;
       cursor: pointer;
-      transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, box-shadow 0.25s ease;
     }
     .map-stop-pill:hover {
-      transform: scale(1.08);
+      transform: scale(1.1) translateY(-2px);
       border-color: #fbbf24;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.7), 0 0 12px rgba(245, 158, 11, 0.35);
     }
     .map-stop-badge {
       background: #f59e0b;
@@ -137,20 +149,48 @@
       font-weight: 700;
     }
 
+    /* Route Polyline Ethereal Glow */
+    .route-glow {
+      filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.6));
+    }
+
+    /* Fluid Glass Reveal Animation */
+    @keyframes glassReveal {
+      from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.985);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    .animate-glass-reveal {
+      animation: glassReveal 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    /* Swap button micro-interaction */
+    #swap-btn {
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, border-color 0.2s ease;
+    }
+    #swap-btn:hover {
+      transform: rotate(180deg);
+    }
+
     /* Leaflet popup styling */
     .leaflet-popup-content-wrapper {
-      background: rgba(12, 12, 14, 0.96) !important;
-      backdrop-filter: blur(24px) !important;
-      -webkit-backdrop-filter: blur(24px) !important;
+      background: rgba(12, 12, 16, 0.88) !important;
+      backdrop-filter: blur(24px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
       color: #f4f4f5 !important;
-      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+      border: 1px solid rgba(255, 255, 255, 0.16) !important;
       border-radius: 16px !important;
-      box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.8) !important;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 25px 60px -10px rgba(0, 0, 0, 0.8) !important;
       padding: 4px;
     }
     .leaflet-popup-tip {
-      background: rgba(12, 12, 14, 0.96) !important;
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(12, 12, 16, 0.88) !important;
+      border: 1px solid rgba(255, 255, 255, 0.16);
     }
     .leaflet-popup-content {
       margin: 12px 14px !important;
@@ -230,8 +270,9 @@
       </button>
     </div>
 
-    <!-- Scrollable Panel Body -->
-    <div id="panel-content" class="flex-1 overflow-y-auto custom-scroll p-5 space-y-4">
+    <!-- Scrollable Panel Body with Smooth Collapse -->
+    <div id="panel-content" class="flex-1 overflow-y-auto custom-scroll p-5 space-y-4"
+         style="transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, padding 0.3s ease; max-height: calc(100vh - 6rem);">
 
       <!-- Route Inputs -->
       <form id="route-form" class="space-y-3">
@@ -247,9 +288,9 @@
             </div>
           </div>
 
-          <!-- Swap Button -->
+          <!-- Tactile Glass Swap Button -->
           <button type="button" id="swap-btn" title="Swap locations"
-                  class="absolute right-3 top-[32px] z-10 w-6 h-6 rounded-full bg-neutral-900 border border-white/10 hover:border-white/20 flex items-center justify-center text-neutral-400 hover:text-white transition active:scale-95">
+                  class="absolute right-3 top-[32px] z-10 w-6 h-6 rounded-full glass-chip flex items-center justify-center text-neutral-400 hover:text-white active:scale-90">
             <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
             </svg>
@@ -394,18 +435,46 @@
     const panelContent = document.getElementById('panel-content');
     const toggleIcon = document.getElementById('toggle-icon');
 
-    // Panel collapse toggle for mobile/fullscreen map view
+    // Panel collapse toggle with silky smooth height animation
     let isCollapsed = false;
     togglePanelBtn.addEventListener('click', () => {
       isCollapsed = !isCollapsed;
       if (isCollapsed) {
-        panelContent.classList.add('hidden');
+        panelContent.style.maxHeight = '0px';
+        panelContent.style.opacity = '0';
+        panelContent.style.paddingTop = '0px';
+        panelContent.style.paddingBottom = '0px';
+        panelContent.style.overflow = 'hidden';
         toggleIcon.classList.add('rotate-180');
       } else {
-        panelContent.classList.remove('hidden');
+        panelContent.style.maxHeight = 'calc(100vh - 6rem)';
+        panelContent.style.opacity = '1';
+        panelContent.style.paddingTop = '1.25rem';
+        panelContent.style.paddingBottom = '1.25rem';
+        panelContent.style.overflow = 'auto';
         toggleIcon.classList.remove('rotate-180');
       }
     });
+
+    // Tactile counter smoothening (Apple ease-out cubic)
+    function animateCount(elementId, targetValue, duration, formatter) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      const startTime = performance.now();
+      function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const ease = 1 - Math.pow(1 - progress, 3);
+        const val = targetValue * ease;
+        el.textContent = formatter(val);
+        if (progress < 1) {
+          requestAnimationFrame(update);
+        } else {
+          el.textContent = formatter(targetValue);
+        }
+      }
+      requestAnimationFrame(update);
+    }
 
     // Swap origin & destination
     swapBtn.addEventListener('click', () => {
@@ -470,12 +539,15 @@
 
     function renderResults(data) {
       resultsContainer.classList.remove('hidden');
+      resultsContainer.classList.remove('animate-glass-reveal');
+      void resultsContainer.offsetWidth; // trigger reflow for smooth re-animation
+      resultsContainer.classList.add('animate-glass-reveal');
 
       const s = data.route_summary;
-      document.getElementById('stat-distance').textContent = `${s.total_distance_miles.toFixed(1)} mi`;
-      document.getElementById('stat-duration').textContent = `${s.total_duration_hours.toFixed(1)} hrs`;
-      document.getElementById('stat-stops').textContent = `${s.fuel_stops_count}`;
-      document.getElementById('stat-cost').textContent = `$${s.total_fuel_cost_usd.toFixed(2)}`;
+      animateCount('stat-distance', s.total_distance_miles, 650, v => `${v.toFixed(1)} mi`);
+      animateCount('stat-duration', s.total_duration_hours, 650, v => `${v.toFixed(1)} hrs`);
+      animateCount('stat-stops', s.fuel_stops_count, 500, v => `${Math.round(v)}`);
+      animateCount('stat-cost', s.total_fuel_cost_usd, 750, v => `$${v.toFixed(2)}`);
       document.getElementById('summary-note').textContent = s.summary_note;
       document.getElementById('stops-counter').textContent = `${s.fuel_stops_count} stop${s.fuel_stops_count === 1 ? '' : 's'}`;
 
@@ -485,16 +557,18 @@
 
       if (data.fuel_stops.length === 0) {
         list.innerHTML = `
-          <div class="p-3 rounded-2xl liquid-glass-card text-neutral-400 text-xs text-center">
+          <div class="p-3 rounded-2xl liquid-glass-card text-neutral-400 text-xs text-center animate-glass-reveal">
             No fuel stops required. Starting 500-mile tank is sufficient.
           </div>
         `;
       } else {
-        data.fuel_stops.forEach(stop => {
+        data.fuel_stops.forEach((stop, index) => {
           const item = document.createElement('div');
           item.className = "liquid-glass-card p-3 rounded-2xl cursor-pointer flex items-center justify-between";
+          item.style.animation = "glassReveal 0.4s cubic-bezier(0.16, 1, 0.3, 1) both";
+          item.style.animationDelay = `${index * 55}ms`;
           item.onclick = () => {
-            map.flyTo([stop.latitude, stop.longitude], 10, { duration: 1.2 });
+            map.flyTo([stop.latitude, stop.longitude], 11, { duration: 1.4, easeLinearity: 0.25 });
           };
           item.innerHTML = `
             <div class="flex items-start space-x-2.5">
@@ -530,16 +604,20 @@
         opacity: 0.6
       }).addTo(markersLayer);
 
-      // Core electric highway polyline (Apple Maps electric blue)
+      // Core electric highway polyline (Apple Maps electric blue with soft glow)
       routeLayer = L.polyline(latlngs, {
         color: '#38bdf8',
         weight: 4,
-        opacity: 1
+        opacity: 0.95,
+        className: 'route-glow'
       }).addTo(markersLayer);
 
       map.fitBounds(routeLayer.getBounds(), {
         paddingTopLeft: [420, 50],
-        paddingBottomRight: [50, 50]
+        paddingBottomRight: [50, 50],
+        animate: true,
+        duration: 1.2,
+        easeLinearity: 0.25
       });
 
       // Start Marker (White with black core)
@@ -577,6 +655,9 @@
         });
 
         const stopMarker = L.marker([stop.latitude, stop.longitude], { icon: icon }).addTo(markersLayer);
+        stopMarker.on('click', () => {
+          map.flyTo([stop.latitude, stop.longitude], 11, { duration: 1.2, easeLinearity: 0.25 });
+        });
         stopMarker.bindPopup(`
           <div style="font-size: 12px; font-family: var(--font-stack);">
             <div style="font-size: 10px; text-transform: uppercase; font-weight: 700; color: #f59e0b; margin-bottom: 2px;">
