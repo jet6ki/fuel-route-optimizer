@@ -5,13 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RouteFuel: Commercial Route and Fuel Optimizer</title>
   
-  <!-- Modern Geometric Typography (Outfit) & Native SF Stack -->
+  <!-- Geist & Geist Mono Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Geist', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            mono: ['"Geist Mono"', 'ui-monospace', 'monospace']
+          }
+        }
+      }
+    };
+  </script>
   
   <!-- Leaflet CSS and JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -21,14 +33,15 @@
     /*
      * Design System: Apple Liquid Glass Web Approximation
      * Adheres strictly to design-taste-frontend directives.
-     * Typography: Modern Outfit Geometric Sans for branding, Apple SF Pro native stack for UI.
+     * Typography: Geist Sans & Geist Mono.
      * Palette: True monochrome (black, white, gray) with singular amber accent.
      * Zero em-dashes anywhere in markup or copy.
      */
 
     :root {
-      --font-display: "Outfit", -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
-      --font-stack: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Plus Jakarta Sans", system-ui, sans-serif;
+      --font-display: "Geist", -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+      --font-stack: "Geist", -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+      --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
 
     * {
@@ -39,6 +52,12 @@
 
     .font-brand {
       font-family: var(--font-display);
+      letter-spacing: -0.035em;
+    }
+
+    .font-mono {
+      font-family: var(--font-mono) !important;
+      letter-spacing: -0.01em;
     }
 
     /* Edge-to-edge living background map */
