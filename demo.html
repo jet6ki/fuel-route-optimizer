@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RouteFuel: Commercial Route and Fuel Optimizer</title>
   
-  <!-- Apple Native System Typography (SF Pro) -->
+  <!-- Modern Geometric Typography (Outfit) & Native SF Stack -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -21,19 +21,24 @@
     /*
      * Design System: Apple Liquid Glass Web Approximation
      * Adheres strictly to design-taste-frontend directives.
+     * Typography: Modern Outfit Geometric Sans for branding, Apple SF Pro native stack for UI.
      * Palette: True monochrome (black, white, gray) with singular amber accent.
-     * Typography: Apple SF Pro native system font stack with tabular figures.
      * Zero em-dashes anywhere in markup or copy.
      */
 
     :root {
-      --font-stack: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "Plus Jakarta Sans", system-ui, sans-serif;
+      --font-display: "Outfit", -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+      --font-stack: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Plus Jakarta Sans", system-ui, sans-serif;
     }
 
     * {
       box-sizing: border-box;
       font-family: var(--font-stack);
       letter-spacing: -0.015em;
+    }
+
+    .font-brand {
+      font-family: var(--font-display);
     }
 
     /* Edge-to-edge living background map */
@@ -259,10 +264,12 @@
     <div class="px-5 py-4 border-b border-white/[0.08] flex items-center justify-between shrink-0">
       <div>
         <div class="flex items-center space-x-2">
-          <h1 class="text-lg sm:text-xl font-bold tracking-tight text-white leading-none">RouteFuel</h1>
-          <span class="text-[10px] font-semibold uppercase tracking-wider text-amber-400 bg-amber-400/10 border border-amber-400/20 px-2 py-0.5 rounded-full">Driver Edition</span>
+          <h1 class="font-brand text-[22px] sm:text-2xl font-black tracking-[-0.04em] text-white leading-none">
+            Route<span class="text-amber-400">Fuel</span>
+          </h1>
+          <span class="text-[10px] font-semibold uppercase tracking-wider text-amber-400 bg-amber-400/10 border border-amber-400/20 px-2 py-0.5 rounded-full font-brand">Driver Edition</span>
         </div>
-        <p class="text-[11px] text-neutral-400 mt-1 font-medium">Commercial Corridor &amp; Refuel Optimizer</p>
+        <p class="text-[11px] text-neutral-400 mt-1 font-medium tracking-tight">Commercial Corridor &amp; Refuel Optimizer</p>
       </div>
 
       <!-- Minimize / Expand Toggle -->
@@ -280,35 +287,72 @@
 
       <!-- Route Inputs -->
       <form id="route-form" class="space-y-3">
-        <div class="relative space-y-2">
+        <div class="space-y-1.5">
           
-          <!-- Origin Field -->
-          <div class="relative">
-            <label class="block text-[11px] font-medium text-neutral-400 mb-1 pl-1">Origin</label>
+          <!-- Origin Field with Dropdown -->
+          <div class="relative" id="start-wrapper">
+            <div class="flex items-center justify-between mb-1 pl-1">
+              <label class="block text-[11px] font-medium text-neutral-400">Origin</label>
+              <span class="text-[10px] text-neutral-500 font-mono">Select or type</span>
+            </div>
             <div class="relative flex items-center">
-              <span class="absolute left-3 w-1.5 h-1.5 rounded-full bg-white ring-4 ring-white/10"></span>
-              <input type="text" id="start-input" value="New York, NY" required placeholder="Start city, state"
-                     class="w-full glass-input text-white text-xs sm:text-sm rounded-xl pl-8 pr-3 py-2.5 focus:outline-none" />
+              <input type="text" id="start-input" value="New York, NY" required autocomplete="off" placeholder="Select origin or enter city"
+                     class="w-full glass-input text-white text-xs sm:text-sm rounded-xl px-3.5 pr-8 py-2.5 focus:outline-none" />
+              <button type="button" id="start-chevron-btn" title="Choose origin from hub list"
+                      class="absolute right-2 w-6 h-6 rounded-lg text-neutral-400 hover:text-white flex items-center justify-center transition">
+                <svg id="start-chevron-icon" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            </div>
+            <!-- Glass Dropdown Menu for Origin -->
+            <div id="start-dropdown"
+                 class="hidden absolute left-0 right-0 top-full mt-1.5 z-40 max-h-52 overflow-y-auto custom-scroll liquid-glass-island rounded-2xl p-1.5 shadow-2xl border border-white/20 bg-neutral-950/95 backdrop-blur-2xl">
+              <div class="px-2.5 py-1 text-[10px] font-semibold text-neutral-400 uppercase tracking-wider border-b border-white/[0.08] mb-1 flex items-center justify-between">
+                <span>Major Logistics Hubs</span>
+                <span class="text-[9px] text-neutral-500 font-mono">14 Hubs</span>
+              </div>
+              <div id="start-dropdown-list" class="space-y-0.5"></div>
             </div>
           </div>
 
-          <!-- Tactile Glass Swap Button -->
-          <button type="button" id="swap-btn" title="Swap locations"
-                  class="absolute right-3 top-[32px] z-10 w-6 h-6 rounded-full glass-chip flex items-center justify-center text-neutral-400 hover:text-white active:scale-90">
-            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-            </svg>
-          </button>
+          <!-- Centered Tactile Glass Swap Button -->
+          <div class="flex justify-center -my-0.5 relative z-10">
+            <button type="button" id="swap-btn" title="Swap locations"
+                    class="w-7 h-7 rounded-full glass-chip flex items-center justify-center text-neutral-400 hover:text-white active:scale-90 shadow-md">
+              <svg class="w-3.5 h-3.5 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+              </svg>
+            </button>
+          </div>
 
-          <!-- Destination Field -->
-          <div class="relative">
-            <label class="block text-[11px] font-medium text-neutral-400 mb-1 pl-1">Destination</label>
+          <!-- Destination Field with Dropdown -->
+          <div class="relative" id="finish-wrapper">
+            <div class="flex items-center justify-between mb-1 pl-1">
+              <label class="block text-[11px] font-medium text-neutral-400">Destination</label>
+              <span class="text-[10px] text-neutral-500 font-mono">Select or type</span>
+            </div>
             <div class="relative flex items-center">
-              <span class="absolute left-3 w-1.5 h-1.5 rounded-full bg-amber-400 ring-4 ring-amber-400/10"></span>
-              <input type="text" id="finish-input" value="Chicago, IL" required placeholder="Destination city, state"
-                     class="w-full glass-input text-white text-xs sm:text-sm rounded-xl pl-8 pr-3 py-2.5 focus:outline-none" />
+              <input type="text" id="finish-input" value="Chicago, IL" required autocomplete="off" placeholder="Select destination or enter city"
+                     class="w-full glass-input text-white text-xs sm:text-sm rounded-xl px-3.5 pr-8 py-2.5 focus:outline-none" />
+              <button type="button" id="finish-chevron-btn" title="Choose destination from hub list"
+                      class="absolute right-2 w-6 h-6 rounded-lg text-neutral-400 hover:text-white flex items-center justify-center transition">
+                <svg id="finish-chevron-icon" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            </div>
+            <!-- Glass Dropdown Menu for Destination -->
+            <div id="finish-dropdown"
+                 class="hidden absolute left-0 right-0 top-full mt-1.5 z-40 max-h-52 overflow-y-auto custom-scroll liquid-glass-island rounded-2xl p-1.5 shadow-2xl border border-white/20 bg-neutral-950/95 backdrop-blur-2xl">
+              <div class="px-2.5 py-1 text-[10px] font-semibold text-neutral-400 uppercase tracking-wider border-b border-white/[0.08] mb-1 flex items-center justify-between">
+                <span>Major Logistics Hubs</span>
+                <span class="text-[9px] text-neutral-500 font-mono">14 Hubs</span>
+              </div>
+              <div id="finish-dropdown-list" class="space-y-0.5"></div>
             </div>
           </div>
+
         </div>
 
         <!-- Apple-Style White Action Button -->
@@ -455,6 +499,139 @@
     const copyManifestBtn = document.getElementById('copy-manifest-btn');
     const copyBtnText = document.getElementById('copy-btn-text');
     let currentRouteData = null;
+
+    // Major US Freight & Transit Hubs for Dropdown Menus
+    const RELEVANT_HUBS = [
+      { name: "New York, NY", region: "Northeast Corridor" },
+      { name: "Chicago, IL", region: "Midwest Freight Hub" },
+      { name: "Los Angeles, CA", region: "West Coast Gateway" },
+      { name: "Dallas, TX", region: "South Central Corridor" },
+      { name: "Atlanta, GA", region: "Southeast Distribution" },
+      { name: "Houston, TX", region: "Gulf Coast Hub" },
+      { name: "Denver, CO", region: "Mountain Corridor" },
+      { name: "Philadelphia, PA", region: "Mid-Atlantic Corridor" },
+      { name: "Indianapolis, IN", region: "Crossroads of America" },
+      { name: "Memphis, TN", region: "Major Logistics Hub" },
+      { name: "Kansas City, MO", region: "Central Freight Hub" },
+      { name: "Phoenix, AZ", region: "Southwest Corridor" },
+      { name: "Seattle, WA", region: "Pacific Northwest" },
+      { name: "Miami, FL", region: "South Florida Hub" }
+    ];
+
+    // Dropdown DOM Elements
+    const startWrapper = document.getElementById('start-wrapper');
+    const startDropdown = document.getElementById('start-dropdown');
+    const startDropdownList = document.getElementById('start-dropdown-list');
+    const startChevronBtn = document.getElementById('start-chevron-btn');
+    const startChevronIcon = document.getElementById('start-chevron-icon');
+
+    const finishWrapper = document.getElementById('finish-wrapper');
+    const finishDropdown = document.getElementById('finish-dropdown');
+    const finishDropdownList = document.getElementById('finish-dropdown-list');
+    const finishChevronBtn = document.getElementById('finish-chevron-btn');
+    const finishChevronIcon = document.getElementById('finish-chevron-icon');
+
+    function populateDropdown(listEl, items, inputEl, dropdownEl, chevronIcon) {
+      listEl.innerHTML = "";
+      if (items.length === 0) {
+        listEl.innerHTML = `<div class="px-3 py-2 text-xs text-neutral-500 text-center">No matching freight hubs</div>`;
+        return;
+      }
+      items.forEach(hub => {
+        const item = document.createElement('button');
+        item.type = "button";
+        item.className = "w-full text-left px-2.5 py-1.5 rounded-xl hover:bg-white/10 flex items-center justify-between transition-colors group";
+        item.innerHTML = `
+          <span class="text-xs font-medium text-neutral-200 group-hover:text-white transition-colors">${hub.name}</span>
+          <span class="text-[10px] text-neutral-500 group-hover:text-amber-400 font-mono transition-colors">${hub.region}</span>
+        `;
+        item.addEventListener('click', (e) => {
+          e.stopPropagation();
+          inputEl.value = hub.name;
+          closeDropdown(dropdownEl, chevronIcon);
+          inputEl.focus();
+        });
+        listEl.appendChild(item);
+      });
+    }
+
+    function openDropdown(dropdownEl, chevronIcon, listEl, inputEl) {
+      if (dropdownEl === startDropdown) {
+        closeDropdown(finishDropdown, finishChevronIcon);
+      } else {
+        closeDropdown(startDropdown, startChevronIcon);
+      }
+      populateDropdown(listEl, filterHubs(inputEl.value), inputEl, dropdownEl, chevronIcon);
+      dropdownEl.classList.remove('hidden');
+      chevronIcon.classList.add('rotate-180');
+    }
+
+    function closeDropdown(dropdownEl, chevronIcon) {
+      if (dropdownEl) dropdownEl.classList.add('hidden');
+      if (chevronIcon) chevronIcon.classList.remove('rotate-180');
+    }
+
+    function filterHubs(query) {
+      if (!query || query.trim() === "") return RELEVANT_HUBS;
+      const q = query.toLowerCase().trim();
+      const filtered = RELEVANT_HUBS.filter(h => h.name.toLowerCase().includes(q) || h.region.toLowerCase().includes(q));
+      return filtered.length > 0 ? filtered : RELEVANT_HUBS;
+    }
+
+    // Bind Origin Dropdown Triggers
+    startChevronBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = !startDropdown.classList.contains('hidden');
+      if (isOpen) {
+        closeDropdown(startDropdown, startChevronIcon);
+      } else {
+        openDropdown(startDropdown, startChevronIcon, startDropdownList, startInput);
+      }
+    });
+
+    startInput.addEventListener('focus', () => {
+      openDropdown(startDropdown, startChevronIcon, startDropdownList, startInput);
+    });
+
+    startInput.addEventListener('input', () => {
+      populateDropdown(startDropdownList, filterHubs(startInput.value), startInput, startDropdown, startChevronIcon);
+      startDropdown.classList.remove('hidden');
+      startChevronIcon.classList.add('rotate-180');
+    });
+
+    // Bind Destination Dropdown Triggers
+    finishChevronBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = !finishDropdown.classList.contains('hidden');
+      if (isOpen) {
+        closeDropdown(finishDropdown, finishChevronIcon);
+      } else {
+        openDropdown(finishDropdown, finishChevronIcon, finishDropdownList, finishInput);
+      }
+    });
+
+    finishInput.addEventListener('focus', () => {
+      openDropdown(finishDropdown, finishChevronIcon, finishDropdownList, finishInput);
+    });
+
+    finishInput.addEventListener('input', () => {
+      populateDropdown(finishDropdownList, filterHubs(finishInput.value), finishInput, finishDropdown, finishChevronIcon);
+      finishDropdown.classList.remove('hidden');
+      finishChevronIcon.classList.add('rotate-180');
+    });
+
+    // Close dropdowns on outside click or Escape
+    document.addEventListener('click', (e) => {
+      if (!startWrapper.contains(e.target)) closeDropdown(startDropdown, startChevronIcon);
+      if (!finishWrapper.contains(e.target)) closeDropdown(finishDropdown, finishChevronIcon);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeDropdown(startDropdown, startChevronIcon);
+        closeDropdown(finishDropdown, finishChevronIcon);
+      }
+    });
 
     // Panel collapse toggle with silky smooth height animation
     let isCollapsed = false;
