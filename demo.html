@@ -247,7 +247,7 @@
       <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
       <span class="text-[11px] text-neutral-300 font-medium">500 mi Range</span>
       <span class="text-neutral-600">&bull;</span>
-      <span class="text-[11px] text-neutral-300 font-medium">10 MPG</span>
+      <span class="text-[11px] text-neutral-300 font-medium">10 MPG Fleet Spec</span>
     </div>
   </div>
 
@@ -255,10 +255,14 @@
   <aside id="main-panel"
          class="fixed top-5 left-5 z-[500] w-[calc(100vw-2.5rem)] sm:w-[395px] max-h-[calc(100vh-2.5rem)] liquid-glass-island rounded-3xl flex flex-col pointer-events-auto transition-all duration-300 overflow-hidden">
 
-    <!-- Island Header: Clean Typography Only (No Icon) -->
+    <!-- Island Header: Commercial Driver Edition -->
     <div class="px-5 py-4 border-b border-white/[0.08] flex items-center justify-between shrink-0">
-      <div class="flex items-center space-x-2">
-        <h1 class="text-sm font-semibold tracking-tight text-white">RouteFuel</h1>
+      <div>
+        <div class="flex items-center space-x-2">
+          <h1 class="text-lg sm:text-xl font-bold tracking-tight text-white leading-none">RouteFuel</h1>
+          <span class="text-[10px] font-semibold uppercase tracking-wider text-amber-400 bg-amber-400/10 border border-amber-400/20 px-2 py-0.5 rounded-full">Driver Edition</span>
+        </div>
+        <p class="text-[11px] text-neutral-400 mt-1 font-medium">Commercial Corridor &amp; Refuel Optimizer</p>
       </div>
 
       <!-- Minimize / Expand Toggle -->
@@ -318,13 +322,15 @@
         </button>
       </form>
 
-      <!-- Preset Chips -->
+      <!-- Preset Corridors -->
       <div>
         <div class="flex items-center space-x-1.5 overflow-x-auto pb-1 custom-scroll">
           <button class="preset-btn glass-chip px-2.5 py-1 rounded-full text-[11px] font-medium text-neutral-300 shrink-0"
-                  data-start="New York, NY" data-finish="Chicago, IL">NY to Chicago</button>
+                  data-start="New York, NY" data-finish="Chicago, IL">NY to Chicago (I-80)</button>
           <button class="preset-btn glass-chip px-2.5 py-1 rounded-full text-[11px] font-medium text-neutral-300 shrink-0"
-                  data-start="New York, NY" data-finish="Los Angeles, CA">Cross-Country</button>
+                  data-start="Dallas, TX" data-finish="Atlanta, GA">Dallas to Atlanta (I-20)</button>
+          <button class="preset-btn glass-chip px-2.5 py-1 rounded-full text-[11px] font-medium text-neutral-300 shrink-0"
+                  data-start="New York, NY" data-finish="Los Angeles, CA">Cross-Country (I-80/15)</button>
           <button class="preset-btn glass-chip px-2.5 py-1 rounded-full text-[11px] font-medium text-neutral-300 shrink-0"
                   data-start="New York, NY" data-finish="Philadelphia, PA">Short (&lt;500 mi)</button>
         </div>
@@ -359,16 +365,28 @@
         <!-- Strategy Note -->
         <div id="summary-note" class="text-[11px] text-neutral-400 liquid-glass-card p-3 rounded-xl leading-relaxed"></div>
 
-        <!-- Stops Timeline -->
+        <!-- Driver Trip Manifest -->
         <div>
           <div class="flex items-center justify-between mb-2 px-1">
-            <span class="text-[11px] font-semibold text-neutral-300 uppercase tracking-wider">Planned Fuel Stops</span>
-            <span id="stops-counter" class="text-[10px] text-neutral-500 font-mono">0 stops</span>
+            <div class="flex items-center space-x-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+              <span class="text-[11px] font-semibold text-neutral-300 uppercase tracking-wider">Driver Trip Manifest</span>
+            </div>
+            <span id="stops-counter" class="text-[10px] text-neutral-400 font-mono">0 stops</span>
           </div>
 
           <div id="stops-list" class="space-y-2">
             <!-- Rendered dynamically -->
           </div>
+
+          <!-- Driver Action: Copy Dispatch Manifest -->
+          <button type="button" id="copy-manifest-btn"
+                  class="w-full mt-3 glass-chip py-2.5 rounded-xl text-xs font-medium text-neutral-300 hover:text-white flex items-center justify-center space-x-2 transition active:scale-[0.98]">
+            <svg class="w-3.5 h-3.5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+            </svg>
+            <span id="copy-btn-text">Copy Trip Manifest</span>
+          </button>
         </div>
 
       </div>
@@ -434,6 +452,9 @@
     const togglePanelBtn = document.getElementById('toggle-panel-btn');
     const panelContent = document.getElementById('panel-content');
     const toggleIcon = document.getElementById('toggle-icon');
+    const copyManifestBtn = document.getElementById('copy-manifest-btn');
+    const copyBtnText = document.getElementById('copy-btn-text');
+    let currentRouteData = null;
 
     // Panel collapse toggle with silky smooth height animation
     let isCollapsed = false;
@@ -499,6 +520,41 @@
       fetchRoute();
     });
 
+    // Driver dispatch manifest clipboard exporter
+    copyManifestBtn.addEventListener('click', () => {
+      if (!currentRouteData) return;
+      const s = currentRouteData.route_summary;
+      let text = `ROUTEFUEL DRIVER TRIP MANIFEST\n`;
+      text += `Origin: ${currentRouteData.start}\n`;
+      text += `Destination: ${currentRouteData.destination}\n`;
+      text += `Total Distance: ${s.total_distance_miles.toFixed(1)} mi | Est. Drive: ${s.total_duration_hours.toFixed(1)} hrs\n`;
+      text += `Total Fuel Cost: $${s.total_fuel_cost_usd.toFixed(2)} | Fuel Stops: ${s.fuel_stops_count}\n`;
+      text += `Vehicle Spec: 500 mi tank range, 10 MPG Fleet Spec\n\n`;
+
+      if (currentRouteData.fuel_stops.length === 0) {
+        text += `No refueling required. Initial 500-mile tank is sufficient.\n`;
+      } else {
+        text += `PLANNED REFUEL STOPS:\n`;
+        currentRouteData.fuel_stops.forEach(stop => {
+          text += `Stop #${stop.stop_number}: ${stop.station_name}\n`;
+          text += `  Location: ${stop.address}, ${stop.city}, ${stop.state} (Mile ${stop.route_mile})\n`;
+          text += `  Leg Distance: ${stop.distance_from_last_stop_miles} mi\n`;
+          text += `  Refuel: ${stop.gallons_refueled} gal @ $${stop.fuel_price_per_gallon.toFixed(3)}/gal ($${stop.leg_fuel_cost_usd.toFixed(2)})\n\n`;
+        });
+      }
+
+      navigator.clipboard.writeText(text).then(() => {
+        copyBtnText.textContent = "✓ Manifest Copied!";
+        copyManifestBtn.classList.add('text-amber-400');
+        setTimeout(() => {
+          copyBtnText.textContent = "Copy Trip Manifest";
+          copyManifestBtn.classList.remove('text-amber-400');
+        }, 2200);
+      }).catch(() => {
+        copyBtnText.textContent = "Manifest Ready";
+      });
+    });
+
     async function fetchRoute() {
       const start = startInput.value.trim();
       const finish = finishInput.value.trim();
@@ -538,6 +594,7 @@
     }
 
     function renderResults(data) {
+      currentRouteData = data;
       resultsContainer.classList.remove('hidden');
       resultsContainer.classList.remove('animate-glass-reveal');
       void resultsContainer.offsetWidth; // trigger reflow for smooth re-animation
