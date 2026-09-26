@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RouteFuel &mdash; Commercial Route & Fuel Optimizer</title>
+  <title>RouteFuel: Commercial Route and Fuel Optimizer</title>
   
-  <!-- Apple SF Pro System Typography -->
+  <!-- Apple Native System Typography (SF Pro) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -13,22 +13,30 @@
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- Leaflet CSS & JS -->
+  <!-- Leaflet CSS and JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <style>
+    /*
+     * Design System: Apple Liquid Glass Web Approximation
+     * Adheres strictly to design-taste-frontend directives.
+     * Palette: True monochrome (black, white, gray) with singular amber accent.
+     * Typography: Apple SF Pro native system font stack with tabular figures.
+     * Zero em-dashes anywhere in markup or copy.
+     */
+
     :root {
-      --font-apple: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "Plus Jakarta Sans", system-ui, -system-ui, sans-serif;
+      --font-stack: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "Plus Jakarta Sans", system-ui, sans-serif;
     }
 
     * {
       box-sizing: border-box;
-      font-family: var(--font-apple);
+      font-family: var(--font-stack);
       letter-spacing: -0.015em;
     }
 
-    /* Full-screen map canvas */
+    /* Edge-to-edge living background map */
     #map {
       position: absolute;
       top: 0;
@@ -38,53 +46,62 @@
       z-index: 1;
     }
 
-    /* Apple-Style Obsidian Glassmorphism */
-    .glass-panel {
-      background: rgba(10, 10, 10, 0.72);
-      backdrop-filter: blur(36px) saturate(180%);
-      -webkit-backdrop-filter: blur(36px) saturate(180%);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.85), inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+    /* Apple Liquid Glass web approximation (Appendix C skeleton) */
+    .liquid-glass-island {
+      position: relative;
+      isolation: isolate;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
+        rgba(10, 10, 10, 0.72);
+      backdrop-filter: blur(32px) saturate(180%) contrast(1.05);
+      -webkit-backdrop-filter: blur(32px) saturate(180%) contrast(1.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.22),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.05),
+        0 24px 60px -12px rgba(0, 0, 0, 0.85);
     }
 
-    .glass-card {
-      background: rgba(255, 255, 255, 0.03);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.07);
-      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    /* Frosted glass internal cards */
+    .liquid-glass-card {
+      background: rgba(255, 255, 255, 0.035);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease, border-color 0.2s ease;
     }
-    .glass-card:hover {
-      background: rgba(255, 255, 255, 0.06);
-      border-color: rgba(255, 255, 255, 0.15);
+    .liquid-glass-card:hover {
+      background: rgba(255, 255, 255, 0.065);
+      border-color: rgba(255, 255, 255, 0.16);
       transform: translateY(-1px);
     }
 
+    /* Minimalist tactile chips */
     .glass-chip {
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.09);
-      transition: all 0.2s ease;
+      transition: all 0.18s ease;
     }
     .glass-chip:hover {
-      background: rgba(255, 255, 255, 0.11);
-      border-color: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.22);
       color: #ffffff;
       transform: translateY(-1px);
     }
 
-    /* Minimalist Outlined Input */
-    .material-input {
-      background: rgba(20, 20, 22, 0.7);
+    /* Outlined clean input with focus ring */
+    .glass-input {
+      background: rgba(18, 18, 20, 0.65);
       border: 1px solid rgba(255, 255, 255, 0.09);
-      transition: all 0.2s ease;
+      transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
     }
-    .material-input:focus {
+    .glass-input:focus {
       background: rgba(24, 24, 27, 0.95);
-      border-color: rgba(255, 255, 255, 0.35);
+      border-color: rgba(255, 255, 255, 0.38);
       box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
     }
 
-    /* Custom Map Markers */
+    /* Map fuel stop markers */
     .map-stop-pill {
       display: inline-flex;
       align-items: center;
@@ -93,7 +110,7 @@
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
       color: #ffffff;
-      padding: 4px 9px 4px 5px;
+      padding: 3.5px 9px 3.5px 5px;
       border-radius: 9999px;
       border: 1px solid rgba(245, 158, 11, 0.65);
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
@@ -101,7 +118,7 @@
       font-weight: 600;
       white-space: nowrap;
       cursor: pointer;
-      transition: transform 0.18s ease;
+      transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .map-stop-pill:hover {
       transform: scale(1.08);
@@ -140,7 +157,22 @@
       line-height: 1.45 !important;
     }
 
-    /* Custom thin scrollbar */
+    /* Accessibility: Reduced motion & transparency fallbacks */
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+    @media (prefers-reduced-transparency: reduce) {
+      .liquid-glass-island, .liquid-glass-card {
+        background: #09090b !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+      }
+    }
+
+    /* Clean thin scrollbar */
     .custom-scroll::-webkit-scrollbar {
       width: 4px;
     }
@@ -148,30 +180,30 @@
       background: transparent;
     }
     .custom-scroll::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.12);
       border-radius: 10px;
     }
     .custom-scroll::-webkit-scrollbar-thumb:hover {
-      background: rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 0.22);
     }
   </style>
 </head>
 <body class="bg-black text-neutral-100 h-screen w-screen overflow-hidden antialiased select-none">
 
-  <!-- Fullscreen Interactive Map Canvas -->
+  <!-- Fullscreen Living Map Canvas -->
   <div id="map"></div>
 
   <!-- Top-Right Floating Controls (Layer Switcher & Vehicle Specs) -->
   <div class="fixed top-5 right-5 z-[500] flex items-center space-x-2 pointer-events-auto">
     <!-- Map Style Toggle Pill -->
-    <div class="glass-panel px-3 py-1.5 rounded-full flex items-center space-x-1.5 text-xs text-neutral-300">
+    <div class="liquid-glass-island px-3 py-1.5 rounded-full flex items-center space-x-1.5 text-xs text-neutral-300">
       <span class="text-neutral-400 text-[11px] font-medium">Map:</span>
       <button id="btn-tile-dark" class="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-white text-black transition">Dark</button>
       <button id="btn-tile-streets" class="px-2.5 py-0.5 rounded-full text-[11px] font-medium text-neutral-400 hover:text-white transition">Streets</button>
     </div>
 
     <!-- Vehicle Specs Pill -->
-    <div class="hidden sm:flex glass-panel px-3.5 py-1.5 rounded-full items-center space-x-2 text-xs text-neutral-300">
+    <div class="hidden sm:flex liquid-glass-island px-3.5 py-1.5 rounded-full items-center space-x-2 text-xs text-neutral-300">
       <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
       <span class="text-[11px] text-neutral-300 font-medium">500 mi Range</span>
       <span class="text-neutral-600">&bull;</span>
@@ -181,13 +213,12 @@
 
   <!-- Floating Island: Main Dispatcher Glass Panel -->
   <aside id="main-panel"
-         class="fixed top-5 left-5 z-[500] w-[calc(100vw-2.5rem)] sm:w-[395px] max-h-[calc(100vh-2.5rem)] glass-panel rounded-3xl flex flex-col pointer-events-auto transition-all duration-300 overflow-hidden">
+         class="fixed top-5 left-5 z-[500] w-[calc(100vw-2.5rem)] sm:w-[395px] max-h-[calc(100vh-2.5rem)] liquid-glass-island rounded-3xl flex flex-col pointer-events-auto transition-all duration-300 overflow-hidden">
 
-    <!-- Island Header / Clean Typography Only (No Icon) -->
+    <!-- Island Header: Clean Typography Only (No Icon) -->
     <div class="px-5 py-4 border-b border-white/[0.08] flex items-center justify-between shrink-0">
       <div class="flex items-center space-x-2">
         <h1 class="text-sm font-semibold tracking-tight text-white">RouteFuel</h1>
-        <span class="text-[10px] px-1.5 py-0.5 rounded bg-white/[0.06] text-neutral-400 border border-white/[0.08] font-mono">v1.0</span>
       </div>
 
       <!-- Minimize / Expand Toggle -->
@@ -212,7 +243,7 @@
             <div class="relative flex items-center">
               <span class="absolute left-3 w-1.5 h-1.5 rounded-full bg-white ring-4 ring-white/10"></span>
               <input type="text" id="start-input" value="New York, NY" required placeholder="Start city, state"
-                     class="w-full material-input text-white text-xs sm:text-sm rounded-xl pl-8 pr-3 py-2.5 focus:outline-none" />
+                     class="w-full glass-input text-white text-xs sm:text-sm rounded-xl pl-8 pr-3 py-2.5 focus:outline-none" />
             </div>
           </div>
 
@@ -230,7 +261,7 @@
             <div class="relative flex items-center">
               <span class="absolute left-3 w-1.5 h-1.5 rounded-full bg-amber-400 ring-4 ring-amber-400/10"></span>
               <input type="text" id="finish-input" value="Chicago, IL" required placeholder="Destination city, state"
-                     class="w-full material-input text-white text-xs sm:text-sm rounded-xl pl-8 pr-3 py-2.5 focus:outline-none" />
+                     class="w-full glass-input text-white text-xs sm:text-sm rounded-xl pl-8 pr-3 py-2.5 focus:outline-none" />
             </div>
           </div>
         </div>
@@ -250,7 +281,7 @@
       <div>
         <div class="flex items-center space-x-1.5 overflow-x-auto pb-1 custom-scroll">
           <button class="preset-btn glass-chip px-2.5 py-1 rounded-full text-[11px] font-medium text-neutral-300 shrink-0"
-                  data-start="New York, NY" data-finish="Chicago, IL">NY &rarr; Chicago</button>
+                  data-start="New York, NY" data-finish="Chicago, IL">NY to Chicago</button>
           <button class="preset-btn glass-chip px-2.5 py-1 rounded-full text-[11px] font-medium text-neutral-300 shrink-0"
                   data-start="New York, NY" data-finish="Los Angeles, CA">Cross-Country</button>
           <button class="preset-btn glass-chip px-2.5 py-1 rounded-full text-[11px] font-medium text-neutral-300 shrink-0"
@@ -266,26 +297,26 @@
         
         <!-- Metrics Grid (Monochrome Glass with Amber Accent) -->
         <div class="grid grid-cols-2 gap-2">
-          <div class="glass-card p-2.5 rounded-2xl">
+          <div class="liquid-glass-card p-2.5 rounded-2xl">
             <span class="text-[10px] font-medium text-neutral-400 uppercase tracking-wider block">Total Distance</span>
             <span id="stat-distance" class="text-base sm:text-lg font-bold text-white tracking-tight mt-0.5 block tabular-nums">0 mi</span>
           </div>
-          <div class="glass-card p-2.5 rounded-2xl">
+          <div class="liquid-glass-card p-2.5 rounded-2xl">
             <span class="text-[10px] font-medium text-neutral-400 uppercase tracking-wider block">Est. Drive Time</span>
             <span id="stat-duration" class="text-base sm:text-lg font-bold text-white tracking-tight mt-0.5 block tabular-nums">0 hrs</span>
           </div>
-          <div class="glass-card p-2.5 rounded-2xl">
+          <div class="liquid-glass-card p-2.5 rounded-2xl">
             <span class="text-[10px] font-medium text-neutral-400 uppercase tracking-wider block">Fuel Stops</span>
             <span id="stat-stops" class="text-base sm:text-lg font-bold text-amber-400 tracking-tight mt-0.5 block tabular-nums">0</span>
           </div>
-          <div class="glass-card p-2.5 rounded-2xl">
+          <div class="liquid-glass-card p-2.5 rounded-2xl">
             <span class="text-[10px] font-medium text-neutral-400 uppercase tracking-wider block">Total Fuel Cost</span>
             <span id="stat-cost" class="text-base sm:text-lg font-bold text-white tracking-tight mt-0.5 block tabular-nums">$0.00</span>
           </div>
         </div>
 
         <!-- Strategy Note -->
-        <div id="summary-note" class="text-[11px] text-neutral-400 glass-card p-3 rounded-xl leading-relaxed"></div>
+        <div id="summary-note" class="text-[11px] text-neutral-400 liquid-glass-card p-3 rounded-xl leading-relaxed"></div>
 
         <!-- Stops Timeline -->
         <div>
@@ -454,14 +485,14 @@
 
       if (data.fuel_stops.length === 0) {
         list.innerHTML = `
-          <div class="p-3 rounded-2xl glass-card text-neutral-400 text-xs text-center">
+          <div class="p-3 rounded-2xl liquid-glass-card text-neutral-400 text-xs text-center">
             No fuel stops required. Starting 500-mile tank is sufficient.
           </div>
         `;
       } else {
         data.fuel_stops.forEach(stop => {
           const item = document.createElement('div');
-          item.className = "glass-card p-3 rounded-2xl cursor-pointer flex items-center justify-between";
+          item.className = "liquid-glass-card p-3 rounded-2xl cursor-pointer flex items-center justify-between";
           item.onclick = () => {
             map.flyTo([stop.latitude, stop.longitude], 10, { duration: 1.2 });
           };
@@ -547,7 +578,7 @@
 
         const stopMarker = L.marker([stop.latitude, stop.longitude], { icon: icon }).addTo(markersLayer);
         stopMarker.bindPopup(`
-          <div style="font-size: 12px; font-family: var(--font-apple);">
+          <div style="font-size: 12px; font-family: var(--font-stack);">
             <div style="font-size: 10px; text-transform: uppercase; font-weight: 700; color: #f59e0b; margin-bottom: 2px;">
               Fuel Stop #${stop.stop_number} &bull; Mile ${stop.route_mile}
             </div>
