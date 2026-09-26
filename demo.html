@@ -247,9 +247,61 @@
     .custom-scroll::-webkit-scrollbar-thumb:hover {
       background: rgba(255, 255, 255, 0.22);
     }
+
+    /* Initial Map Engine Splash Screen */
+    @keyframes loaderProgress {
+      0% {
+        left: -35%;
+        width: 35%;
+      }
+      50% {
+        left: 25%;
+        width: 55%;
+      }
+      100% {
+        left: 100%;
+        width: 30%;
+      }
+    }
+    .loader-progress-bar {
+      animation: loaderProgress 1.4s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+    }
   </style>
 </head>
 <body class="bg-black text-neutral-100 h-screen w-screen overflow-hidden antialiased select-none">
+
+  <!-- Initial Map Engine Splash & Preloader -->
+  <div id="initial-loader"
+       class="fixed inset-0 z-[1000] bg-[#09090b] flex flex-col items-center justify-center transition-all duration-700 ease-out select-none">
+    <div class="flex flex-col items-center space-y-5 text-center px-4 max-w-sm">
+      <!-- Minimalist Brand Badge with Soft Amber Glow -->
+      <div class="relative flex items-center justify-center">
+        <div class="w-14 h-14 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-center shadow-2xl backdrop-blur-xl">
+          <svg class="w-7 h-7 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 22V4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v18"/>
+            <path d="M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V9.83a2 2 0 0 0-.59-1.42L18 5"/>
+            <path d="M7 11h2"/>
+          </svg>
+        </div>
+        <div class="absolute -inset-2 rounded-2xl bg-amber-500/10 blur-xl animate-pulse"></div>
+      </div>
+
+      <!-- Brand Typography -->
+      <div>
+        <h2 class="font-brand text-2xl font-black tracking-[-0.04em] text-white">
+          Route<span class="text-amber-400">Fuel</span>
+        </h2>
+        <p class="text-xs text-neutral-400 mt-1.5 font-medium tracking-tight">Initializing High-Precision Map Grid</p>
+      </div>
+
+      <!-- Tactile Indeterminate Progress Bar -->
+      <div class="w-48 h-1 bg-white/[0.08] rounded-full overflow-hidden relative">
+        <div class="absolute top-0 bottom-0 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 rounded-full loader-progress-bar"></div>
+      </div>
+
+      <span class="text-[10px] text-neutral-400 font-mono tracking-wider uppercase">Loading Corridor &bull; Caching Tiles</span>
+    </div>
+  </div>
 
   <!-- Fullscreen Living Map Canvas -->
   <div id="map"></div>
@@ -456,26 +508,52 @@
   </aside>
 
   <script>
-    // Initialize Map with dark background default
+    // Initialize Map with dark background default and smooth inertia physics
     const map = L.map('map', {
-      zoomControl: false
+      zoomControl: false,
+      zoomAnimation: true,
+      fadeAnimation: true,
+      markerZoomAnimation: true,
+      inertia: true,
+      inertiaDeceleration: 3000
     }).setView([39.8283, -98.5795], 4);
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    // 1. Watermark-free Esri Dark Gray Canvas (Default)
+    // 1. Watermark-free Esri Dark Gray Canvas (Default) with expanded pre-load halo
     const darkTiles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
       maxZoom: 16,
-      attribution: 'Tiles &copy; Esri'
+      attribution: 'Tiles &copy; Esri',
+      keepBuffer: 8,
+      updateWhenIdle: false
     });
 
-    // 2. Watermark-free Esri World Street Map (Alternative)
+    // 2. Watermark-free Esri World Street Map (Alternative) with expanded pre-load halo
     const streetTiles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
       maxZoom: 19,
-      attribution: 'Tiles &copy; Esri'
+      attribution: 'Tiles &copy; Esri',
+      keepBuffer: 8,
+      updateWhenIdle: false
     });
 
     darkTiles.addTo(map);
+
+    // Initial Splash Screen Coordinator
+    let isInitialLoad = true;
+
+    function dismissInitialLoader() {
+      const loader = document.getElementById('initial-loader');
+      if (!loader || loader.dataset.dismissed === 'true') return;
+      loader.dataset.dismissed = 'true';
+      loader.style.opacity = '0';
+      loader.style.pointerEvents = 'none';
+      setTimeout(() => {
+        if (loader && loader.parentNode) loader.remove();
+      }, 750);
+    }
+
+    // Safety fallback so loading screen never hangs on network latency
+    setTimeout(dismissInitialLoader, 2800);
 
     // Layer switcher toggle handlers
     const btnDark = document.getElementById('btn-tile-dark');
@@ -782,6 +860,10 @@
         renderResults(data);
 
       } catch (err) {
+        if (isInitialLoad) {
+          isInitialLoad = false;
+          dismissInitialLoader();
+        }
         errorBox.textContent = err.message;
         errorBox.classList.remove('hidden');
         resultsContainer.classList.add('hidden');
@@ -871,8 +953,8 @@
       map.fitBounds(routeLayer.getBounds(), {
         paddingTopLeft: [420, 50],
         paddingBottomRight: [50, 50],
-        animate: true,
-        duration: 1.2,
+        animate: !isInitialLoad,
+        duration: isInitialLoad ? 0 : 1.2,
         easeLinearity: 0.25
       });
 
@@ -940,6 +1022,17 @@
           </div>
         `);
       });
+
+      // On initial load, wait for map tiles across the route to finish rendering before revealing
+      if (isInitialLoad) {
+        isInitialLoad = false;
+        map.invalidateSize();
+        const finishLoad = () => {
+          setTimeout(dismissInitialLoader, 200);
+        };
+        darkTiles.once('load', finishLoad);
+        setTimeout(finishLoad, 1400);
+      }
     }
 
     // Auto-load initial route
