@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RouteFuel — Commercial Trip & Fuel Stop Optimizer</title>
+  <title>RouteFuel &mdash; Commercial Route & Fuel Optimizer</title>
   
-  <!-- Modern Inter Font -->
+  <!-- Inter font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -17,267 +17,378 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-          },
-          colors: {
-            brand: {
-              50: '#eff6ff',
-              100: '#dbeafe',
-              500: '#3b82f6',
-              600: '#2563eb',
-              700: '#1d4ed8',
-              900: '#1e3a8a',
-            }
-          }
-        }
-      }
-    }
-  </script>
-
   <style>
-    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-    #map { width: 100%; height: 100%; min-height: 100%; }
+    * {
+      box-sizing: border-box;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
 
-    /* Custom Leaflet stop badge */
-    .stop-marker {
+    /* Full-screen map canvas */
+    #map {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+    }
+
+    /* Liquid Glassmorphism Core */
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.76);
+      backdrop-filter: blur(28px) saturate(190%);
+      -webkit-backdrop-filter: blur(28px) saturate(190%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 24px 60px -15px rgba(0, 0, 0, 0.6), inset 0 1px 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .glass-card:hover {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 255, 255, 0.18);
+      transform: translateY(-1.5px);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+
+    .glass-chip {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      transition: all 0.2s ease;
+    }
+    .glass-chip:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.22);
+      transform: translateY(-1px);
+    }
+
+    /* Material-style input focus transitions */
+    .material-input {
+      background: rgba(2, 6, 23, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.2s ease;
+    }
+    .material-input:focus {
+      background: rgba(2, 6, 23, 0.85);
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    /* Custom Map Markers */
+    .map-stop-pill {
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      background: #0f172a;
+      gap: 6px;
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       color: #ffffff;
-      padding: 3px 8px 3px 6px;
+      padding: 4px 10px 4px 5px;
       border-radius: 9999px;
-      border: 1.5px solid #f97316;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(249, 115, 22, 0.7);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.45);
       font-size: 11px;
       font-weight: 600;
       white-space: nowrap;
       cursor: pointer;
-      transition: transform 0.15s ease;
+      transition: transform 0.18s ease;
     }
-    .stop-marker:hover {
-      transform: scale(1.08);
-      border-color: #ea580c;
+    .map-stop-pill:hover {
+      transform: scale(1.1);
+      border-color: #fb923c;
     }
-    .stop-number-badge {
-      background: #ea580c;
-      color: #ffffff;
-      width: 16px;
-      height: 16px;
+    .map-stop-badge {
+      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+      color: white;
+      width: 18px;
+      height: 18px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 10px;
       font-weight: 700;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
 
-    /* Clean custom popup */
+    /* Leaflet popup styling */
     .leaflet-popup-content-wrapper {
-      background: #0f172a !important;
+      background: rgba(15, 23, 42, 0.95) !important;
+      backdrop-filter: blur(20px) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
       color: #f8fafc !important;
-      border: 1px solid #334155;
-      border-radius: 10px !important;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+      border: 1px solid rgba(255, 255, 255, 0.14) !important;
+      border-radius: 16px !important;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7) !important;
       padding: 4px;
     }
     .leaflet-popup-tip {
-      background: #0f172a !important;
-      border: 1px solid #334155;
+      background: rgba(15, 23, 42, 0.95) !important;
+      border: 1px solid rgba(255, 255, 255, 0.14);
     }
     .leaflet-popup-content {
-      margin: 10px 12px !important;
-      line-height: 1.4 !important;
+      margin: 12px 14px !important;
+      line-height: 1.45 !important;
+    }
+
+    /* Custom thin scrollbar */
+    .custom-scroll::-webkit-scrollbar {
+      width: 5px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.25);
     }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 h-screen flex flex-col overflow-hidden antialiased">
+<body class="bg-slate-950 text-slate-100 h-screen w-screen overflow-hidden antialiased select-none">
 
-  <!-- Top Navigation Bar -->
-  <header class="h-14 bg-slate-900 border-b border-slate-800 px-5 flex items-center justify-between z-20 shrink-0">
-    <div class="flex items-center space-x-3">
-      <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white text-base shadow-sm">
-        <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-        </svg>
-      </div>
-      <div>
-        <div class="flex items-center space-x-2">
-          <span class="font-semibold text-slate-100 text-sm tracking-tight">RouteFuel</span>
-          <span class="text-[11px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700 font-mono">v1.0</span>
-        </div>
-        <p class="text-[11px] text-slate-400">Long-Haul Highway Routing & Cost Optimizer</p>
-      </div>
+  <!-- Fullscreen Interactive Map -->
+  <div id="map"></div>
+
+  <!-- Top-Right Floating Controls (Layer Switcher & Specs) -->
+  <div class="fixed top-5 right-5 z-[500] flex items-center space-x-2.5 pointer-events-auto">
+    <!-- Map Style Toggle Pill -->
+    <div class="glass-panel px-3 py-1.5 rounded-full flex items-center space-x-1.5 text-xs text-slate-300">
+      <span class="text-slate-400 text-[11px] font-medium">Map:</span>
+      <button id="btn-tile-dark" class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-600/80 text-white transition">Dark</button>
+      <button id="btn-tile-streets" class="px-2 py-0.5 rounded-full text-[11px] font-medium text-slate-400 hover:text-white transition">Streets</button>
     </div>
 
-    <div class="flex items-center space-x-4 text-xs text-slate-400">
-      <div class="hidden sm:flex items-center space-x-3 border-r border-slate-800 pr-4">
-        <span>Max Range: <strong class="text-slate-200">500 mi</strong></span>
-        <span>&bull;</span>
-        <span>Efficiency: <strong class="text-slate-200">10 MPG</strong></span>
-      </div>
-      <a href="/api/route/" target="_blank" class="text-slate-400 hover:text-slate-200 text-xs font-medium flex items-center space-x-1 transition">
-        <span>Raw API</span>
-        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-        </svg>
-      </a>
+    <!-- Vehicle Specs Pill -->
+    <div class="hidden sm:flex glass-panel px-3.5 py-1.5 rounded-full items-center space-x-2 text-xs text-slate-300">
+      <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+      <span class="font-medium text-[11px] text-slate-300">500 mi Range</span>
+      <span class="text-slate-500">&bull;</span>
+      <span class="font-medium text-[11px] text-slate-300">10 MPG</span>
     </div>
-  </header>
-
-  <!-- Body Content: Sidebar + Map -->
-  <div class="flex-1 flex overflow-hidden relative">
-
-    <!-- Left Dispatcher Sidebar -->
-    <aside class="w-full sm:w-[410px] bg-slate-900 border-r border-slate-800 flex flex-col z-10 shrink-0 overflow-y-auto">
-      
-      <!-- Inputs & Actions -->
-      <div class="p-5 border-b border-slate-800 space-y-4">
-        <form id="route-form" class="space-y-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Origin</label>
-            <div class="relative">
-              <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-emerald-500/20"></span>
-              </span>
-              <input type="text" id="start-input" value="New York, NY" required placeholder="City, State or lat, lon"
-                     class="w-full bg-slate-950 border border-slate-700/80 rounded-lg pl-8 pr-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition" />
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Destination</label>
-            <div class="relative">
-              <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <span class="w-2 h-2 rounded-full bg-rose-500 ring-2 ring-rose-500/20"></span>
-              </span>
-              <input type="text" id="finish-input" value="Chicago, IL" required placeholder="City, State or lat, lon"
-                     class="w-full bg-slate-950 border border-slate-700/80 rounded-lg pl-8 pr-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition" />
-            </div>
-          </div>
-
-          <button type="submit" id="submit-btn"
-                  class="w-full bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-medium py-2.5 rounded-lg text-sm transition flex items-center justify-center space-x-2 shadow-sm">
-            <span id="btn-text">Calculate Driving Route</span>
-            <svg id="btn-spinner" class="hidden animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-          </button>
-        </form>
-
-        <!-- Quick Presets -->
-        <div>
-          <span class="text-[11px] font-medium text-slate-400 block mb-1.5">Sample corridors:</span>
-          <div class="flex flex-wrap gap-1.5">
-            <button class="preset-btn text-xs px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700/80 text-slate-300 border border-slate-700 transition"
-                    data-start="New York, NY" data-finish="Chicago, IL">NY → Chicago</button>
-            <button class="preset-btn text-xs px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700/80 text-slate-300 border border-slate-700 transition"
-                    data-start="New York, NY" data-finish="Los Angeles, CA">NY → Los Angeles</button>
-            <button class="preset-btn text-xs px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700/80 text-slate-300 border border-slate-700 transition"
-                    data-start="New York, NY" data-finish="Philadelphia, PA">Local (&lt;500 mi)</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Error Message -->
-      <div id="error-box" class="hidden m-5 p-3 rounded-lg bg-rose-950/60 border border-rose-800 text-rose-300 text-xs"></div>
-
-      <!-- Results Area -->
-      <div id="results-container" class="hidden flex-1 flex flex-col">
-        
-        <!-- Summary Numbers -->
-        <div class="p-5 border-b border-slate-800">
-          <div class="grid grid-cols-2 gap-3">
-            <div class="bg-slate-950/70 p-3 rounded-lg border border-slate-800">
-              <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wide">Total Distance</span>
-              <p id="stat-distance" class="text-lg font-bold text-slate-100 mt-0.5">0 mi</p>
-            </div>
-            <div class="bg-slate-950/70 p-3 rounded-lg border border-slate-800">
-              <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wide">Est. Duration</span>
-              <p id="stat-duration" class="text-lg font-bold text-slate-100 mt-0.5">0 hrs</p>
-            </div>
-            <div class="bg-slate-950/70 p-3 rounded-lg border border-slate-800">
-              <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wide">Fuel Stops</span>
-              <p id="stat-stops" class="text-lg font-bold text-orange-400 mt-0.5">0</p>
-            </div>
-            <div class="bg-slate-950/70 p-3 rounded-lg border border-slate-800">
-              <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wide">Fuel Expense</span>
-              <p id="stat-cost" class="text-lg font-bold text-emerald-400 mt-0.5">$0.00</p>
-            </div>
-          </div>
-
-          <p id="summary-note" class="text-xs text-slate-400 mt-3 leading-relaxed"></p>
-        </div>
-
-        <!-- Planned Fuel Stops List -->
-        <div class="flex-1 p-5 overflow-y-auto">
-          <div class="flex items-center justify-between mb-3">
-            <span class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Planned Fuel Stops</span>
-            <span id="stops-counter" class="text-[11px] text-slate-400">0 stops</span>
-          </div>
-
-          <div id="stops-list" class="space-y-2.5">
-            <!-- Dynamic stops -->
-          </div>
-        </div>
-
-      </div>
-
-    </aside>
-
-    <!-- Right Interactive Map Area -->
-    <main class="flex-1 relative bg-slate-950">
-      <div id="map"></div>
-    </main>
-
   </div>
 
+  <!-- Floating Island: Main Dispatcher Panel -->
+  <aside id="main-panel"
+         class="fixed top-5 left-5 z-[500] w-[calc(100vw-2.5rem)] sm:w-[410px] max-h-[calc(100vh-2.5rem)] glass-panel rounded-3xl flex flex-col pointer-events-auto transition-all duration-300 overflow-hidden">
+
+    <!-- Island Header / Branding -->
+    <div class="p-4 sm:p-5 border-b border-white/10 flex items-center justify-between shrink-0">
+      <div class="flex items-center space-x-2.5">
+        <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-md">
+          <svg class="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-sm font-semibold tracking-tight text-white flex items-center space-x-1.5">
+            <span>RouteFuel</span>
+            <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-white/10 text-slate-300 border border-white/10">PRO</span>
+          </h1>
+        </div>
+      </div>
+
+      <!-- Minimize / Expand Toggle -->
+      <button id="toggle-panel-btn" class="w-7 h-7 rounded-full glass-chip flex items-center justify-center text-slate-400 hover:text-white transition">
+        <svg id="toggle-icon" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Scrollable Panel Body -->
+    <div id="panel-content" class="flex-1 overflow-y-auto custom-scroll p-4 sm:p-5 space-y-4">
+
+      <!-- Route Inputs -->
+      <form id="route-form" class="space-y-2.5">
+        <div class="relative space-y-2">
+          
+          <!-- Origin Field -->
+          <div class="relative">
+            <label class="block text-[11px] font-medium text-slate-400 mb-1 pl-1">Origin</label>
+            <div class="relative flex items-center">
+              <span class="absolute left-3 w-2 h-2 rounded-full bg-emerald-400 ring-4 ring-emerald-400/20"></span>
+              <input type="text" id="start-input" value="New York, NY" required placeholder="Start city, state"
+                     class="w-full material-input text-slate-100 text-xs sm:text-sm rounded-xl pl-8 pr-3 py-2.5 focus:outline-none" />
+            </div>
+          </div>
+
+          <!-- Swap Button -->
+          <button type="button" id="swap-btn" title="Swap locations"
+                  class="absolute right-3 top-[34px] z-10 w-6 h-6 rounded-full bg-slate-800 border border-white/10 hover:border-white/20 flex items-center justify-center text-slate-400 hover:text-white transition active:scale-95">
+            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+            </svg>
+          </button>
+
+          <!-- Destination Field -->
+          <div class="relative">
+            <label class="block text-[11px] font-medium text-slate-400 mb-1 pl-1">Destination</label>
+            <div class="relative flex items-center">
+              <span class="absolute left-3 w-2 h-2 rounded-full bg-rose-500 ring-4 ring-rose-500/20"></span>
+              <input type="text" id="finish-input" value="Chicago, IL" required placeholder="Destination city, state"
+                     class="w-full material-input text-slate-100 text-xs sm:text-sm rounded-xl pl-8 pr-3 py-2.5 focus:outline-none" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" id="submit-btn"
+                class="w-full mt-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 hover:brightness-110 active:scale-[0.99] text-white font-medium py-2.5 rounded-xl text-xs sm:text-sm transition-all shadow-lg shadow-blue-500/20 flex items-center justify-center space-x-2">
+          <span id="btn-text">Optimize Route & Fuel Stops</span>
+          <svg id="btn-spinner" class="hidden animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </button>
+      </form>
+
+      <!-- Preset Chips -->
+      <div class="pt-1">
+        <div class="flex items-center space-x-1.5 overflow-x-auto pb-1 custom-scroll">
+          <button class="preset-btn glass-chip px-2.5 py-1 rounded-full text-[11px] font-medium text-slate-300 shrink-0"
+                  data-start="New York, NY" data-finish="Chicago, IL">NY &rarr; Chicago (1 stop)</button>
+          <button class="preset-btn glass-chip px-2.5 py-1 rounded-full text-[11px] font-medium text-slate-300 shrink-0"
+                  data-start="New York, NY" data-finish="Los Angeles, CA">Cross-Country</button>
+          <button class="preset-btn glass-chip px-2.5 py-1 rounded-full text-[11px] font-medium text-slate-300 shrink-0"
+                  data-start="New York, NY" data-finish="Philadelphia, PA">Short (&lt;500 mi)</button>
+        </div>
+      </div>
+
+      <!-- Error Notice -->
+      <div id="error-box" class="hidden p-3 rounded-xl bg-rose-950/70 border border-rose-500/40 text-rose-200 text-xs leading-relaxed"></div>
+
+      <!-- Dynamic Route Results -->
+      <div id="results-container" class="hidden space-y-3.5 pt-1">
+        
+        <!-- Metrics Grid (Liquid Glass) -->
+        <div class="grid grid-cols-2 gap-2">
+          <div class="glass-card p-2.5 rounded-2xl">
+            <span class="text-[10px] font-medium text-slate-400 uppercase tracking-wider block">Total Distance</span>
+            <span id="stat-distance" class="text-base sm:text-lg font-bold text-white tracking-tight mt-0.5 block">0 mi</span>
+          </div>
+          <div class="glass-card p-2.5 rounded-2xl">
+            <span class="text-[10px] font-medium text-slate-400 uppercase tracking-wider block">Est. Drive Time</span>
+            <span id="stat-duration" class="text-base sm:text-lg font-bold text-white tracking-tight mt-0.5 block">0 hrs</span>
+          </div>
+          <div class="glass-card p-2.5 rounded-2xl">
+            <span class="text-[10px] font-medium text-slate-400 uppercase tracking-wider block">Fuel Stops</span>
+            <span id="stat-stops" class="text-base sm:text-lg font-bold text-orange-400 tracking-tight mt-0.5 block">0</span>
+          </div>
+          <div class="glass-card p-2.5 rounded-2xl">
+            <span class="text-[10px] font-medium text-slate-400 uppercase tracking-wider block">Total Fuel Cost</span>
+            <span id="stat-cost" class="text-base sm:text-lg font-bold text-emerald-400 tracking-tight mt-0.5 block">$0.00</span>
+          </div>
+        </div>
+
+        <!-- Strategy Note -->
+        <div id="summary-note" class="text-[11px] text-slate-400 glass-card p-3 rounded-xl leading-relaxed"></div>
+
+        <!-- Stops Timeline -->
+        <div>
+          <div class="flex items-center justify-between mb-2 px-1">
+            <span class="text-[11px] font-semibold text-slate-300 uppercase tracking-wider">Planned Fuel Stops</span>
+            <span id="stops-counter" class="text-[10px] text-slate-400 font-mono">0 stops</span>
+          </div>
+
+          <div id="stops-list" class="space-y-2">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </aside>
+
   <script>
-    // Initialize Leaflet Map
+    // Initialize Map with dark background default
     const map = L.map('map', {
-      zoomControl: true
+      zoomControl: false // Move zoom control to bottom right for cleaner UI
     }).setView([39.8283, -98.5795], 4);
 
-    // High quality, 100% free, watermark-free Esri World Street Map (No API key, no 403 blocks)
-    const esriStreets = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-      maxZoom: 19,
-      attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, METI, TomTom'
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+    // 1. Watermark-free Esri Dark Gray Canvas (Default)
+    const darkTiles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 16,
+      attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ'
     });
 
-    // Alternative OpenStreetMap Humanitarian layer (No watermark, free)
-    const osmHot = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+    // 2. Watermark-free Esri World Street Map (Alternative)
+    const streetTiles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
       maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, USGS'
     });
 
-    // Default to clean Esri Streets
-    esriStreets.addTo(map);
+    darkTiles.addTo(map);
 
-    // Add clean layer switcher
-    L.control.layers({
-      "Highways & Streets": esriStreets,
-      "OpenStreetMap (HOT)": osmHot
-    }, null, { position: 'topright' }).addTo(map);
+    // Layer switcher toggle handlers
+    const btnDark = document.getElementById('btn-tile-dark');
+    const btnStreets = document.getElementById('btn-tile-streets');
+
+    btnDark.addEventListener('click', () => {
+      map.removeLayer(streetTiles);
+      darkTiles.addTo(map);
+      btnDark.className = "px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-600/80 text-white transition";
+      btnStreets.className = "px-2 py-0.5 rounded-full text-[11px] font-medium text-slate-400 hover:text-white transition";
+    });
+
+    btnStreets.addEventListener('click', () => {
+      map.removeLayer(darkTiles);
+      streetTiles.addTo(map);
+      btnStreets.className = "px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-600/80 text-white transition";
+      btnDark.className = "px-2 py-0.5 rounded-full text-[11px] font-medium text-slate-400 hover:text-white transition";
+    });
 
     let routeLayer = null;
+    let outlineLayer = null;
     let markersLayer = L.layerGroup().addTo(map);
 
+    // DOM Elements
     const form = document.getElementById('route-form');
     const startInput = document.getElementById('start-input');
     const finishInput = document.getElementById('finish-input');
+    const swapBtn = document.getElementById('swap-btn');
     const submitBtn = document.getElementById('submit-btn');
     const btnText = document.getElementById('btn-text');
     const btnSpinner = document.getElementById('btn-spinner');
     const errorBox = document.getElementById('error-box');
     const resultsContainer = document.getElementById('results-container');
+    const togglePanelBtn = document.getElementById('toggle-panel-btn');
+    const panelContent = document.getElementById('panel-content');
+    const toggleIcon = document.getElementById('toggle-icon');
 
-    // Preset handlers
+    // Panel collapse toggle for mobile/fullscreen map view
+    let isCollapsed = false;
+    togglePanelBtn.addEventListener('click', () => {
+      isCollapsed = !isCollapsed;
+      if (isCollapsed) {
+        panelContent.classList.add('hidden');
+        toggleIcon.classList.add('rotate-180');
+      } else {
+        panelContent.classList.remove('hidden');
+        toggleIcon.classList.remove('rotate-180');
+      }
+    });
+
+    // Swap origin & destination
+    swapBtn.addEventListener('click', () => {
+      const temp = startInput.value;
+      startInput.value = finishInput.value;
+      finishInput.value = temp;
+      fetchRoute();
+    });
+
+    // Preset button handlers
     document.querySelectorAll('.preset-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
@@ -299,7 +410,7 @@
       if (!start || !finish) return;
 
       submitBtn.disabled = true;
-      btnText.textContent = "Calculating Route...";
+      btnText.textContent = "Computing...";
       btnSpinner.classList.remove('hidden');
       errorBox.classList.add('hidden');
       errorBox.textContent = "";
@@ -325,7 +436,7 @@
         resultsContainer.classList.add('hidden');
       } finally {
         submitBtn.disabled = false;
-        btnText.textContent = "Calculate Driving Route";
+        btnText.textContent = "Optimize Route & Fuel Stops";
         btnSpinner.classList.add('hidden');
       }
     }
@@ -341,68 +452,70 @@
       document.getElementById('summary-note').textContent = s.summary_note;
       document.getElementById('stops-counter').textContent = `${s.fuel_stops_count} stop${s.fuel_stops_count === 1 ? '' : 's'}`;
 
-      // Render stops timeline
+      // Render stops list
       const list = document.getElementById('stops-list');
       list.innerHTML = "";
 
       if (data.fuel_stops.length === 0) {
         list.innerHTML = `
-          <div class="p-3 rounded-lg bg-slate-950/50 border border-slate-800 text-slate-400 text-xs text-center">
-            No refueling required within vehicle's 500-mile starting tank.
+          <div class="p-3 rounded-2xl glass-card text-slate-400 text-xs text-center">
+            No fuel stops required. Starting 500-mile tank is sufficient.
           </div>
         `;
       } else {
         data.fuel_stops.forEach(stop => {
           const item = document.createElement('div');
-          item.className = "p-3 rounded-lg bg-slate-950/80 border border-slate-800 hover:border-slate-700 transition cursor-pointer";
+          item.className = "glass-card p-3 rounded-2xl cursor-pointer flex items-center justify-between";
           item.onclick = () => {
             map.flyTo([stop.latitude, stop.longitude], 10, { duration: 1.2 });
           };
           item.innerHTML = `
-            <div class="flex items-start justify-between">
-              <div class="flex items-start space-x-2">
-                <span class="mt-0.5 w-4 h-4 rounded-full bg-orange-600 text-white font-bold text-[10px] flex items-center justify-center shrink-0">
-                  ${stop.stop_number}
-                </span>
-                <div>
-                  <h4 class="text-xs font-semibold text-slate-100">${stop.station_name}</h4>
-                  <p class="text-[11px] text-slate-400 mt-0.5">${stop.city}, ${stop.state}</p>
-                  <p class="text-[10px] text-slate-500 mt-0.5 font-mono">Mile ${stop.route_mile} &bull; Leg: ${stop.distance_from_last_stop_miles} mi</p>
-                </div>
+            <div class="flex items-start space-x-2.5">
+              <span class="mt-0.5 w-5 h-5 rounded-full bg-gradient-to-tr from-orange-600 to-amber-500 text-white font-bold text-[10px] flex items-center justify-center shrink-0 shadow-sm">
+                ${stop.stop_number}
+              </span>
+              <div>
+                <h4 class="text-xs font-semibold text-slate-100">${stop.station_name}</h4>
+                <p class="text-[11px] text-slate-400">${stop.city}, ${stop.state}</p>
+                <p class="text-[10px] text-slate-500 mt-0.5 font-mono">Mile ${stop.route_mile} &bull; Leg: ${stop.distance_from_last_stop_miles} mi</p>
               </div>
-              <div class="text-right">
-                <span class="text-xs font-semibold text-emerald-400 font-mono">$${stop.fuel_price_per_gallon.toFixed(3)}/gal</span>
-                <p class="text-[10px] text-slate-400 mt-0.5 font-mono">${stop.gallons_refueled} gal &bull; $${stop.leg_fuel_cost_usd.toFixed(2)}</p>
-              </div>
+            </div>
+            <div class="text-right">
+              <span class="text-xs font-semibold text-emerald-400 font-mono">$${stop.fuel_price_per_gallon.toFixed(3)}/gal</span>
+              <p class="text-[10px] text-slate-400 mt-0.5 font-mono">${stop.gallons_refueled} gal = <strong class="text-slate-200">$${stop.leg_fuel_cost_usd.toFixed(2)}</strong></p>
             </div>
           `;
           list.appendChild(item);
         });
       }
 
-      // Map Drawing
+      // Clear existing layers
       if (routeLayer) map.removeLayer(routeLayer);
+      if (outlineLayer) map.removeLayer(outlineLayer);
       markersLayer.clearLayers();
 
       const latlngs = data.route_geometry.coordinates.map(coord => [coord[1], coord[0]]);
 
-      // Outer outline line
-      const outlineLayer = L.polyline(latlngs, {
-        color: '#1e3a8a',
-        weight: 7,
-        opacity: 0.9
+      // Outer glow polyline
+      outlineLayer = L.polyline(latlngs, {
+        color: '#1d4ed8',
+        weight: 8,
+        opacity: 0.4
       }).addTo(markersLayer);
 
-      // Inner vibrant driving line
+      // Core electric route polyline
       routeLayer = L.polyline(latlngs, {
-        color: '#3b82f6',
+        color: '#60a5fa',
         weight: 4,
         opacity: 1
       }).addTo(markersLayer);
 
-      map.fitBounds(routeLayer.getBounds(), { padding: [40, 40] });
+      map.fitBounds(routeLayer.getBounds(), {
+        paddingTopLeft: [440, 50], // Leaves room for the floating panel on the left
+        paddingBottomRight: [50, 50]
+      });
 
-      // Start Marker
+      // Start Marker (Green Ring)
       const startCoord = latlngs[0];
       L.circleMarker(startCoord, {
         radius: 7,
@@ -412,28 +525,28 @@
         fillOpacity: 1
       }).bindPopup(`<strong>Origin:</strong> ${data.start}`).addTo(markersLayer);
 
-      // Destination Marker
+      // Destination Marker (Red Ring)
       const endCoord = latlngs[latlngs.length - 1];
       L.circleMarker(endCoord, {
         radius: 7,
-        fillColor: '#ef4444',
+        fillColor: '#f43f5e',
         color: '#ffffff',
         weight: 2,
         fillOpacity: 1
       }).bindPopup(`<strong>Destination:</strong> ${data.destination}`).addTo(markersLayer);
 
-      // Selected Fuel Stop Badges on Map
+      // Fuel Stop Pill Markers on Map
       data.fuel_stops.forEach(stop => {
         const icon = L.divIcon({
           className: '',
           html: `
-            <div class="stop-marker">
-              <span class="stop-number-badge">${stop.stop_number}</span>
+            <div class="map-stop-pill">
+              <span class="map-stop-badge">${stop.stop_number}</span>
               <span>$${stop.fuel_price_per_gallon.toFixed(2)}</span>
             </div>
           `,
-          iconSize: [80, 26],
-          iconAnchor: [40, 13]
+          iconSize: [84, 28],
+          iconAnchor: [42, 14]
         });
 
         const stopMarker = L.marker([stop.latitude, stop.longitude], { icon: icon }).addTo(markersLayer);
@@ -446,13 +559,13 @@
             <div style="color: #94a3b8; font-size: 11px; margin-top: 2px;">
               ${stop.address}<br>${stop.city}, ${stop.state}
             </div>
-            <div style="border-top: 1px solid #334155; margin: 8px 0; padding-top: 6px;">
+            <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 8px 0; padding-top: 6px;">
               <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
-                <span style="color: #94a3b8;">Fuel Price:</span>
+                <span style="color: #94a3b8;">Price:</span>
                 <strong style="color: #34d399;">$${stop.fuel_price_per_gallon.toFixed(3)}/gal</strong>
               </div>
               <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
-                <span style="color: #94a3b8;">Fuel Refueled:</span>
+                <span style="color: #94a3b8;">Refueled:</span>
                 <span style="color: #f1f5f9;">${stop.gallons_refueled} gal</span>
               </div>
               <div style="display: flex; justify-content: space-between;">
