@@ -13,7 +13,11 @@ def demo_view(request):
     demo_file = settings.BASE_DIR / "demo.html"
     if demo_file.exists():
         with open(demo_file, "r", encoding="utf-8") as f:
-            return HttpResponse(f.read(), content_type="text/html")
+            resp = HttpResponse(f.read(), content_type="text/html")
+            resp["Cache-Control"] = "no-cache, no-store, must-revalidate"
+            resp["Pragma"] = "no-cache"
+            resp["Expires"] = "0"
+            return resp
     return HttpResponse("demo.html not found", status=404)
 
 

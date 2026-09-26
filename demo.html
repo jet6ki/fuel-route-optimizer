@@ -31,32 +31,56 @@
 
   <style>
     /*
-     * Design System: Apple Liquid Glass Web Approximation
+     * Design System: Vercel Geist Minimalist Interface
      * Adheres strictly to design-taste-frontend directives.
-     * Typography: Geist Sans & Geist Mono.
+     * Typography: Geist Sans & Geist Mono (Embedded Variable Woff2).
      * Palette: True monochrome (black, white, gray) with singular amber accent.
      * Zero em-dashes anywhere in markup or copy.
      */
 
-    :root {
-      --font-display: "Geist", -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
-      --font-stack: "Geist", -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
-      --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    /* Embedded Vercel Geist Variable Font */
+    @font-face {
+      font-family: 'Geist';
+      font-style: normal;
+      font-weight: 100 900;
+      font-display: swap;
+      src: url('https://fonts.gstatic.com/s/geist/v5/gyByhwUxId8gMEwcGFWNOITd.woff2') format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    @font-face {
+      font-family: 'Geist Mono';
+      font-style: normal;
+      font-weight: 100 900;
+      font-display: swap;
+      src: url('https://fonts.gstatic.com/s/geistmono/v6/or3nQ6H-1_WfwkMZI_qYFrcdmhHkjko.woff2') format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
     }
 
-    * {
-      box-sizing: border-box;
-      font-family: var(--font-stack);
+    :root {
+      --font-display: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-stack: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'Geist Mono', ui-monospace, monospace;
+    }
+
+    *, html, body, button, input, select, textarea, div, span, p, h1, h2, h3, h4, h5, h6, label, a {
+      font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif !important;
       letter-spacing: -0.015em;
     }
 
-    .font-brand {
-      font-family: var(--font-display);
-      letter-spacing: -0.035em;
+    body {
+      font-feature-settings: "cv01" 1, "cv02" 1, "cv03" 1, "tnum" 1;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
-    .font-mono {
-      font-family: var(--font-mono) !important;
+    .font-brand {
+      font-family: 'Geist', sans-serif !important;
+      letter-spacing: -0.045em !important;
+    }
+
+    .font-mono, .font-mono * {
+      font-family: 'Geist Mono', monospace !important;
+      font-feature-settings: "zero" 1, "tnum" 1 !important;
       letter-spacing: -0.01em;
     }
 
