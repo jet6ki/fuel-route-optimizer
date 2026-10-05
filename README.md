@@ -184,24 +184,25 @@ python manage.py test api -v 2
 11. `test_fuel_cost_calculation_math`: Verifies mathematical precision of gallons ($D/10$) and cost summation.
 12. `test_routing_api_failure_returns_502`: Verifies graceful `502 Bad Gateway` if OSRM is down.
 13. `test_location_not_found_returns_404`: Verifies `404 Not Found` for invalid city names.
-14. `test_health_check_endpoint`: Verifies service status check.
+14. `test_valid_route_get_request`: Verifies route calculation via GET query parameters.
+15. `test_health_check_endpoint`: Verifies service status check.
 
-> **Note:** All automated tests use Python `unittest.mock` to mock external network requests, ensuring tests run in **under 0.1 seconds** and never fail due to external network flakiness.
+> **Note:** All automated tests use Python `unittest.mock` to mock external network requests, ensuring tests run in **under 0.06 seconds** and never fail due to external network flakiness.
 
 ---
 
 ## 📡 API Endpoints & Specifications
 
-### 1. `POST /api/route/`
-Main endpoint for route calculation and fuel stop planning.
+### 1. `POST /api/route/` or `GET /api/route/?start=...&finish=...`
+Main endpoint for route calculation and fuel stop planning. Supports both JSON body via `POST` and query parameters via `GET`.
 
-#### Request Headers
+#### Request Headers (for POST)
 ```http
 Content-Type: application/json
 Accept: application/json
 ```
 
-#### Request Body
+#### Request Body (for POST)
 ```json
 {
   "start": "New York, NY",
@@ -214,6 +215,11 @@ Accept: application/json
   "start": "40.7128, -74.0060",
   "finish": "41.8781, -87.6298"
 }
+```
+
+*Note: GET request format:*
+```http
+GET /api/route/?start=New+York%2C+NY&finish=Chicago%2C+IL
 ```
 
 #### HTTP Status Codes
@@ -255,18 +261,19 @@ curl -X POST http://127.0.0.1:8000/api/route/ \
 ```json
 {
   "success": true,
-  "start": "New York, New York",
-  "destination": "Chicago, Illinois",
+  "start": "New York, NY",
+  "destination": "Chicago, IL",
+  "map_url": "http://127.0.0.1:8000/?start=New+York%2C+NY&finish=Chicago%2C+IL",
   "route_summary": {
-    "total_distance_miles": 790.57,
-    "total_duration_hours": 14.85,
+    "total_distance_miles": 790.51,
+    "total_duration_hours": 14.84,
     "fuel_economy_mpg": 10.0,
     "vehicle_range_miles": 500.0,
-    "total_gallons_used": 79.06,
-    "total_fuel_cost_usd": 241.84,
-    "estimated_consumed_fuel_value_usd": 241.84,
+    "total_gallons_used": 79.05,
+    "total_fuel_cost_usd": 241.81,
+    "estimated_consumed_fuel_value_usd": 241.81,
     "fuel_stops_count": 1,
-    "summary_note": "Journey requires 1 fuel stop(s) to complete 790.6 miles cost-effectively within vehicle range."
+    "summary_note": "Journey requires 1 fuel stop(s) to complete 790.5 miles cost-effectively within vehicle range."
   },
   "fuel_stops": [
     {
@@ -381,7 +388,7 @@ Performance is a key assessment criterion. We minimize external calls strictly:
 
 ---
 
-## 📮 Postman Testing Instructions
+## 📮 Postman Testing & Interactive Visualizer
 
 1. Open Postman.
 2. Click **Import** (top left).
@@ -390,8 +397,18 @@ Performance is a key assessment criterion. We minimize external calls strictly:
 5. Run any of the included requests:
    - `1. Health Check` (GET `http://127.0.0.1:8000/api/health/`)
    - `2. Route: New York to Chicago (~790 mi, 1 Fuel Stop)`
-   - `3. Route: New York to Los Angeles (~2790 mi, Cross-Country 6 Stops)`
-   - `4. Route: Short Trip (<500 mi, 0 Fuel Stops)`
-   - `5. Route: Direct Coordinates Input`
-   - `6. Validation Error: Missing finish (Expect 400)`
-   - `7. Error: Unknown Location (Expect 404)`
+   - `3. Route: GET via Query Parameters (Dallas to Atlanta)`
+   - `4. Route: New York to Los Angeles (~2790 mi, Cross-Country 6 Stops)`
+   - `5. Route: Short Trip (<500 mi, 0 Fuel Stops)`
+   - `6. Route: Direct Coordinates Input`
+   - `7. Validation Error: Missing finish (Expect 400)`
+   - `8. Error: Unknown Location (Expect 404)`
+
+### 🗺️ Built-in Postman Visualizer Map!
+When you execute any route request in Postman:
+1. Click the **"Visualize"** tab (located right next to *Pretty / Raw / Preview* in the response panel).
+2. Postman will render an **interactive OpenStreetMap Leaflet map** directly inside the Postman window, showing:
+   - The road route polyline in blue.
+   - Green start pin and Red finish pin.
+   - Amber fuel stop markers with full pricing, gallons refueled, and leg expense popups!
+3. Alternatively, click the `map_url` link in the JSON response to open the full web interface in your browser.

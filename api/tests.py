@@ -82,6 +82,32 @@ class FuelRouteOptimizerTests(TestCase):
         self.assertEqual(data["route_summary"]["total_distance_miles"], 790.0)
         self.assertEqual(data["route_summary"]["fuel_economy_mpg"], 10.0)
         self.assertEqual(data["route_summary"]["vehicle_range_miles"], 500.0)
+        self.assertIn("map_url", data)
+        self.assertIn("start=New+York%2C+NY", data["map_url"])
+
+    @patch("api.views.get_driving_route")
+    @patch("api.views.geocode_location")
+    def test_valid_route_get_request(self, mock_geocode, mock_route):
+        """A valid GET request with query parameters returns 200 and expected schema."""
+        mock_geocode.side_effect = [
+            (40.7128, -74.0060, "New York, NY"),
+            (41.8781, -87.6298, "Chicago, IL")
+        ]
+        mock_route.return_value = {
+            "distance_miles": 790.0,
+            "duration_hours": 14.5,
+            "geometry": self.sample_geometry
+        }
+
+        response = self.client.get(self.route_url, data={"start": "New York, NY", "finish": "Chicago, IL"})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertTrue(data["success"])
+        self.assertEqual(data["start"], "New York, NY")
+        self.assertEqual(data["destination"], "Chicago, IL")
+        self.assertIn("map_url", data)
+
 
     # -------------------------------------------------------------------------
     # Test 2: Missing start

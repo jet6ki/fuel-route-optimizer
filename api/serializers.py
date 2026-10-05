@@ -76,6 +76,7 @@ class RouteResponseSerializer(serializers.Serializer):
     success = serializers.BooleanField(default=True)
     start = serializers.CharField()
     destination = serializers.CharField()
+    map_url = serializers.CharField(required=False)
     route_summary = RouteSummarySerializer()
     fuel_stops = FuelStopSerializer(many=True)
     route_geometry = serializers.DictField()

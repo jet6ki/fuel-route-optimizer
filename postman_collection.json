@@ -19,9 +19,18 @@
         "url": {
           "raw": "http://127.0.0.1:8000/api/health/",
           "protocol": "http",
-          "host": ["127", "0", "0", "1"],
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
           "port": "8000",
-          "path": ["api", "health", ""]
+          "path": [
+            "api",
+            "health",
+            ""
+          ]
         },
         "description": "Checks the API status and total fuel stations loaded in memory."
       }
@@ -43,15 +52,63 @@
         "url": {
           "raw": "http://127.0.0.1:8000/api/route/",
           "protocol": "http",
-          "host": ["127", "0", "0", "1"],
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
           "port": "8000",
-          "path": ["api", "route", ""]
+          "path": [
+            "api",
+            "route",
+            ""
+          ]
         },
         "description": "Calculates route and finds optimal fuel stop near Youngstown, OH."
       }
     },
     {
-      "name": "3. Route: New York to Los Angeles (~2790 mi, Cross-Country 6 Stops)",
+      "name": "3. Route: GET via Query Parameters (Dallas to Atlanta)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/route/?start=Dallas, TX&finish=Atlanta, GA",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "route",
+            ""
+          ],
+          "query": [
+            {
+              "key": "start",
+              "value": "Dallas, TX"
+            },
+            {
+              "key": "finish",
+              "value": "Atlanta, GA"
+            }
+          ]
+        },
+        "description": "Demonstrates fetching route and stops via GET query parameters."
+      }
+    },
+    {
+      "name": "4. Route: New York to Los Angeles (~2790 mi, Cross-Country 6 Stops)",
       "request": {
         "method": "POST",
         "header": [
@@ -67,15 +124,24 @@
         "url": {
           "raw": "http://127.0.0.1:8000/api/route/",
           "protocol": "http",
-          "host": ["127", "0", "0", "1"],
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
           "port": "8000",
-          "path": ["api", "route", ""]
+          "path": [
+            "api",
+            "route",
+            ""
+          ]
         },
         "description": "Cross-country journey requiring multiple fuel stops spaced <= 500 miles."
       }
     },
     {
-      "name": "4. Route: Short Trip (<500 mi, 0 Fuel Stops)",
+      "name": "5. Route: Short Trip (<500 mi, 0 Fuel Stops)",
       "request": {
         "method": "POST",
         "header": [
@@ -91,15 +157,24 @@
         "url": {
           "raw": "http://127.0.0.1:8000/api/route/",
           "protocol": "http",
-          "host": ["127", "0", "0", "1"],
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
           "port": "8000",
-          "path": ["api", "route", ""]
+          "path": [
+            "api",
+            "route",
+            ""
+          ]
         },
         "description": "Trip within vehicle range (95 miles), completed with 0 en-route stops."
       }
     },
     {
-      "name": "5. Route: Direct Coordinates Input",
+      "name": "6. Route: Direct Coordinates Input",
       "request": {
         "method": "POST",
         "header": [
@@ -115,15 +190,24 @@
         "url": {
           "raw": "http://127.0.0.1:8000/api/route/",
           "protocol": "http",
-          "host": ["127", "0", "0", "1"],
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
           "port": "8000",
-          "path": ["api", "route", ""]
+          "path": [
+            "api",
+            "route",
+            ""
+          ]
         },
         "description": "Demonstrates bypassing external geocoding by supplying latitude and longitude directly."
       }
     },
     {
-      "name": "6. Validation Error: Missing finish (Expect 400)",
+      "name": "7. Validation Error: Missing finish (Expect 400)",
       "request": {
         "method": "POST",
         "header": [
@@ -139,15 +223,24 @@
         "url": {
           "raw": "http://127.0.0.1:8000/api/route/",
           "protocol": "http",
-          "host": ["127", "0", "0", "1"],
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
           "port": "8000",
-          "path": ["api", "route", ""]
+          "path": [
+            "api",
+            "route",
+            ""
+          ]
         },
         "description": "Tests validation error response when a required field is missing."
       }
     },
     {
-      "name": "7. Error: Unknown Location (Expect 404)",
+      "name": "8. Error: Unknown Location (Expect 404)",
       "request": {
         "method": "POST",
         "header": [
@@ -163,11 +256,100 @@
         "url": {
           "raw": "http://127.0.0.1:8000/api/route/",
           "protocol": "http",
-          "host": ["127", "0", "0", "1"],
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
           "port": "8000",
-          "path": ["api", "route", ""]
+          "path": [
+            "api",
+            "route",
+            ""
+          ]
         },
         "description": "Tests handling when an address cannot be found by geocoding."
+      }
+    }
+  ],
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "try {",
+          "    var res = pm.response.json();",
+          "    if (res.success && res.route_geometry && res.route_geometry.coordinates) {",
+          "        var template = `",
+          "        <!DOCTYPE html>",
+          "        <html>",
+          "        <head>",
+          "            <meta charset=\"utf-8\" />",
+          "            <link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.9.4/dist/leaflet.css\" />",
+          "            <script src=\"https://unpkg.com/leaflet@1.9.4/dist/leaflet.js\"></script>",
+          "            <style>",
+          "                body { margin: 0; padding: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #09090b; color: #f4f4f5; }",
+          "                .card { background: #18181b; border: 1px solid #27272a; border-radius: 10px; padding: 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }",
+          "                .title { font-size: 15px; font-weight: 600; color: #fff; }",
+          "                .stat-grid { display: flex; gap: 20px; font-size: 13px; }",
+          "                .stat-val { color: #f59e0b; font-weight: 700; font-size: 14px; }",
+          "                #map { height: 480px; width: 100%; border-radius: 10px; border: 1px solid #27272a; }",
+          "                .leaflet-popup-content-wrapper { background: #18181b; color: #fff; border-radius: 8px; border: 1px solid #3f3f46; }",
+          "                .leaflet-popup-tip { background: #18181b; }",
+          "            </style>",
+          "        </head>",
+          "        <body>",
+          "            <div class=\"card\">",
+          "                <div class=\"title\">Route: {{response.start}} &rarr; {{response.destination}}</div>",
+          "                <div class=\"stat-grid\">",
+          "                    <div>Distance: <span class=\"stat-val\">{{response.route_summary.total_distance_miles}} mi</span></div>",
+          "                    <div>Stops: <span class=\"stat-val\">{{response.route_summary.fuel_stops_count}}</span></div>",
+          "                    <div>Fuel Cost: <span class=\"stat-val\">${{response.route_summary.total_fuel_cost_usd}}</span></div>",
+          "                    <div>Gallons: <span class=\"stat-val\">{{response.route_summary.total_gallons_used}} gal</span></div>",
+          "                </div>",
+          "            </div>",
+          "            <div id=\"map\"></div>",
+          "            <script>",
+          "                pm.getData(function (err, value) {",
+          "                    var data = value.response;",
+          "                    var map = L.map(\"map\");",
+          "                    L.tileLayer(\"https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png\", {",
+          "                        attribution: \"&copy; OpenStreetMap & CartoDB\",",
+          "                        maxZoom: 19",
+          "                    }).addTo(map);",
+          "",
+          "                    var coords = data.route_geometry.coordinates.map(function(c) { return [c[1], c[0]]; });",
+          "                    var polyline = L.polyline(coords, { color: \"#3b82f6\", weight: 4, opacity: 0.85 }).addTo(map);",
+          "                    map.fitBounds(polyline.getBounds(), { padding: [30, 30] });",
+          "",
+          "                    if (coords.length > 0) {",
+          "                        L.circleMarker(coords[0], { radius: 8, fillColor: \"#10b981\", color: \"#fff\", weight: 2, fillOpacity: 1 }).bindPopup(\"<b>Start:</b> \" + data.start).addTo(map);",
+          "                        L.circleMarker(coords[coords.length - 1], { radius: 8, fillColor: \"#ef4444\", color: \"#fff\", weight: 2, fillOpacity: 1 }).bindPopup(\"<b>Destination:</b> \" + data.destination).addTo(map);",
+          "                    }",
+          "",
+          "                    (data.fuel_stops || []).forEach(function(s) {",
+          "                        var popup = \"<div style=\\\"font-size:12px;\\\">\" +",
+          "                            \"<b style=\\\"color:#f59e0b;\\\">Stop #\" + s.stop_number + \" &bull; Mile \" + s.route_mile + \"</b><br>\" +",
+          "                            \"<strong style=\\\"font-size:13px;\\\">\" + s.station_name + \"</strong><br>\" +",
+          "                            s.address + \"<br>\" + s.city + \", \" + s.state + \"<br><hr style=\\\"border-color:#333;margin:4px 0;\\\">\" +",
+          "                            \"Price: <b style=\\\"color:#fbbf24;\\\">$\" + s.fuel_price_per_gallon.toFixed(3) + \"/gal</b><br>\" +",
+          "                            \"Refueled: <b>\" + s.gallons_refueled + \" gal</b> ($\" + s.leg_fuel_cost_usd.toFixed(2) + \")</div>\";",
+          "                        L.circleMarker([s.latitude, s.longitude], { radius: 7, fillColor: \"#f59e0b\", color: \"#fff\", weight: 2, fillOpacity: 1 })",
+          "                          .bindPopup(popup)",
+          "                          .addTo(map);",
+          "                    });",
+          "                });",
+          "            </script>",
+          "        </body>",
+          "        </html>`;",
+          "        pm.visualizer.set(template, { response: res });",
+          "    }",
+          "} catch (e) {",
+          "    console.error(e);",
+          "}"
+        ]
       }
     }
   ]

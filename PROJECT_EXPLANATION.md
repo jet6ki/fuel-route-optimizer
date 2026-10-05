@@ -152,22 +152,31 @@ Here is a recommended script you can follow for your Loom video:
 > *For geocoding city names, I used Photon (OpenStreetMap).*
 > *Notice our dataset originally had 8,151 stations with cities and states, but NO coordinates! To avoid making 8,000 slow API calls at runtime, I pre-enriched the dataset with US Census city coordinates. It loads in memory in 15ms and does spatial matching locally. This means ZERO external API calls for gas stations, making our API respond in under a second!"*
 
-### ⏱️ Minute 1:45 - 3:00 | Live Postman Demonstration
+### ⏱️ Minute 1:45 - 3:00 | Live Postman & Visual Map Demonstration
 *(Open Postman and run requests from `postman_collection.json`):*
 
 1. **Demonstrate New York to Chicago (Mid-Distance):**
    - Click Send on `POST /api/route/` with `{"start": "New York, NY", "finish": "Chicago, IL"}`.
    - Show response:
-     - Distance: `790.57 miles`.
-     - Fuel used: `79.06 gallons`.
+     - Distance: `790.51 miles`.
+     - Total fuel cost: `$241.81` (79.05 gallons @ 10 mpg).
      - Stops: Exactly **1 fuel stop** at **SHEETZ in Youngstown, OH** at Mile 391.9 for **$3.059/gal**.
      - Point out: *"391.9 miles is within the 500-mile range from New York, and from Youngstown to Chicago is ~398 miles, so it completes the trip in just 1 stop at the cheapest available station!"*
+   - **⭐️ The Wow Moment (Postman Visualizer):**
+     - Click the **"Visualize"** button right next to "Pretty / Raw / Preview" in Postman.
+     - An **interactive OpenStreetMap Leaflet map renders right inside Postman**!
+     - Show the blue route polyline, start/finish pins, and the amber fuel stop marker with popup.
+     - Also show the `map_url` in the JSON response, which opens the full standalone web UI at `http://127.0.0.1:8000/`.
 
 2. **Demonstrate Short Trip (<500 miles):**
    - Send `{"start": "New York, NY", "finish": "Philadelphia, PA"}` (~95 miles).
-   - Point out: *"0 fuel stops required because the vehicle has a 500-mile starting tank. En-route cost is $0.00."*
+   - Point out: *"0 fuel stops required because the vehicle has a 500-mile starting tank. En-route purchase cost is $0.00."*
 
-3. **Demonstrate Error Handling:**
+3. **Demonstrate Cross-Country (New York to Los Angeles):**
+   - Send `POST /api/route/` for NY to LA (~2,794 miles).
+   - Show that it calculates **6 optimal fuel stops**, with every single leg strictly $\le 500$ miles.
+
+4. **Demonstrate Error Handling:**
    - Send empty body or missing finish field: Show the clean `400 Bad Request`.
    - Send a non-existent city: Show the clean `404 Not Found`.
 
@@ -176,16 +185,16 @@ Here is a recommended script you can follow for your Loom video:
 - Show `api/services/optimizer.py`:
   - Show how the while loop checks `remaining_distance > 500`.
   - Show the search window `[current_mile + 250, current_mile + 480]`.
-  - Show `min(candidates, key=lambda s: s["retail_price"])` selecting the cheapest fuel price.
+  - Show `min(candidates, key=lambda s: (s["retail_price"], -s["route_mile"]))` selecting the cheapest fuel price.
 - Show `api/services/station_store.py`:
   - Show the Haversine formula and route corridor check.
 - Show `api/serializers.py`:
-  - Show how inputs are validated.
+  - Show how inputs are validated and clean schemas returned.
 
 ### ⏱️ Minute 4:15 - 5:00 | Automated Tests & Conclusion
 - Switch to terminal:
   - Run `python manage.py test api -v 2`.
-  - Point out: *"All 14 unit tests pass in 0.05 seconds. All external API calls are mocked so the tests are 100% reliable and offline-ready."*
+  - Point out: *"All 15 unit tests pass in 0.05 seconds. All external API calls are mocked so the tests are 100% reliable, deterministic, and offline-ready."*
 - Wrap up:
   - *"Thank you! The code is clean, fully documented, follows Django best practices, and is ready for production."*
 

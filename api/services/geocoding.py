@@ -10,8 +10,28 @@ from typing import Tuple, Union, List
 from django.conf import settings
 from .exceptions import LocationNotFoundError, ExternalServiceError
 
-# In-memory cache to store geocoded locations during application runtime
-_GEOCODE_CACHE = {}
+# In-memory cache to store geocoded locations during application runtime.
+# Pre-seeded with major US freight/transit hubs for instant (0ms) resolution.
+_GEOCODE_CACHE = {
+    "new york, ny": (40.7128, -74.0060, "New York, NY"),
+    "chicago, il": (41.8781, -87.6298, "Chicago, IL"),
+    "los angeles, ca": (34.0522, -118.2437, "Los Angeles, CA"),
+    "dallas, tx": (32.7767, -96.7970, "Dallas, TX"),
+    "atlanta, ga": (33.7490, -84.3880, "Atlanta, GA"),
+    "houston, tx": (29.7604, -95.3698, "Houston, TX"),
+    "denver, co": (39.7392, -104.9903, "Denver, CO"),
+    "philadelphia, pa": (39.9526, -75.1652, "Philadelphia, PA"),
+    "indianapolis, in": (39.7684, -86.1581, "Indianapolis, IN"),
+    "memphis, tn": (35.1495, -90.0490, "Memphis, TN"),
+    "kansas city, mo": (39.0997, -94.5786, "Kansas City, MO"),
+    "phoenix, az": (33.4484, -112.0740, "Phoenix, AZ"),
+    "seattle, wa": (47.6062, -122.3321, "Seattle, WA"),
+    "miami, fl": (25.7617, -80.1918, "Miami, FL"),
+    "san francisco, ca": (37.7749, -122.4194, "San Francisco, CA"),
+    "boston, ma": (42.3601, -71.0589, "Boston, MA"),
+    "austin, tx": (30.2672, -97.7431, "Austin, TX"),
+    "las vegas, nv": (36.1699, -115.1398, "Las Vegas, NV"),
+}
 
 
 def _parse_coordinates(value: Union[str, List[float]]) -> Union[Tuple[float, float], None]:
@@ -46,13 +66,35 @@ def _parse_coordinates(value: Union[str, List[float]]) -> Union[Tuple[float, flo
     return None
 
 
-def geocode_location(location: Union[str, List[float]], timeout: int = 8) -> Tuple[float, float, str]:
+def _geocode_via_nominatim(location_str: str, timeout: int = 6) -> Union[Tuple[float, float, str], None]:
+    """Fallback geocoder using OpenStreetMap Nominatim."""
+    try:
+        url = "https://nominatim.openstreetmap.org/search"
+        params = {"q": location_str, "format": "json", "limit": 1}
+        headers = {"User-Agent": "FuelRouteOptimizer/1.0"}
+        resp = requests.get(url, params=params, headers=headers, timeout=timeout)
+        if resp.status_code == 200:
+            results = resp.json()
+            if results and len(results) > 0:
+                lat = float(results[0]["lat"])
+                lon = float(results[0]["lon"])
+                display = results[0].get("display_name", location_str)
+                # Shorten display name to first 2 parts (City, State)
+                parts = [p.strip() for p in display.split(",")]
+                clean_display = f"{parts[0]}, {parts[1]}" if len(parts) >= 2 else parts[0]
+                return lat, lon, clean_display
+    except Exception:
+        pass
+    return None
+
+
+def geocode_location(location: Union[str, List[float]], timeout: int = 15) -> Tuple[float, float, str]:
     """
     Geocodes a location name into (latitude, longitude, display_name).
 
     Args:
         location: String address (e.g. "New York, NY") or coordinate pair.
-        timeout: HTTP request timeout in seconds.
+        timeout: HTTP request timeout in seconds (default 15s).
 
     Returns:
         (latitude, longitude, display_name)
@@ -85,33 +127,41 @@ def geocode_location(location: Union[str, List[float]], timeout: int = 8) -> Tup
         "User-Agent": "FuelRouteOptimizer/1.0"
     }
 
+    photon_error = None
     try:
         response = requests.get(url, params=params, headers=headers, timeout=timeout)
-        if response.status_code != 200:
-            raise ExternalServiceError("Geocoding", f"Status code {response.status_code}")
-        data = response.json()
+        if response.status_code == 200:
+            data = response.json()
+            features = data.get("features", [])
+            if features:
+                first = features[0]
+                coords = first.get("geometry", {}).get("coordinates", [])
+                if len(coords) >= 2:
+                    lon = float(coords[0])
+                    lat = float(coords[1])
+                    props = first.get("properties", {})
+                    name = props.get("name") or location_str
+                    state = props.get("state") or props.get("country") or ""
+                    display_name = f"{name}, {state}".strip(", ") if state else name
+
+                    result = (lat, lon, display_name)
+                    _GEOCODE_CACHE[cache_key] = result
+                    return result
+            else:
+                # No features from photon, try fallback before raising not found
+                pass
+        else:
+            photon_error = f"Photon returned HTTP {response.status_code}"
     except requests.RequestException as e:
-        raise ExternalServiceError("Geocoding", str(e))
+        photon_error = str(e)
 
-    features = data.get("features", [])
-    if not features:
-        raise LocationNotFoundError(location_str)
+    # 4. Fallback to Nominatim if Photon failed or returned no results
+    nominatim_result = _geocode_via_nominatim(location_str, timeout=6)
+    if nominatim_result:
+        _GEOCODE_CACHE[cache_key] = nominatim_result
+        return nominatim_result
 
-    first = features[0]
-    coords = first.get("geometry", {}).get("coordinates", [])
-    if len(coords) < 2:
-        raise LocationNotFoundError(location_str)
-
-    # GeoJSON returns [longitude, latitude]
-    lon = float(coords[0])
-    lat = float(coords[1])
-
-    # Build readable display name
-    props = first.get("properties", {})
-    name = props.get("name") or location_str
-    state = props.get("state") or props.get("country") or ""
-    display_name = f"{name}, {state}".strip(", ") if state else name
-
-    result = (lat, lon, display_name)
-    _GEOCODE_CACHE[cache_key] = result
-    return result
+    # If both services gave nothing:
+    if photon_error:
+        raise ExternalServiceError("Geocoding", photon_error)
+    raise LocationNotFoundError(location_str)

@@ -1078,8 +1078,13 @@
       }
     }
 
-    // Auto-load initial route
+    // Auto-load initial route or read from URL query parameters
     window.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const startParam = urlParams.get('start');
+      const finishParam = urlParams.get('finish');
+      if (startParam) startInput.value = startParam;
+      if (finishParam) finishInput.value = finishParam;
       fetchRoute();
     });
   </script>

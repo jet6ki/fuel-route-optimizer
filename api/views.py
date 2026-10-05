@@ -19,6 +19,7 @@ from .services.geocoding import geocode_location
 from .services.routing import get_driving_route
 from .services.station_store import find_stations_along_route, load_stations
 from .services.optimizer import optimize_fuel_stops
+from urllib.parse import quote_plus
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
@@ -26,14 +27,22 @@ logger = logging.getLogger(__name__)
 
 class RouteOptimizeView(APIView):
     """
-    POST /api/route/
+    POST /api/route/ or GET /api/route/?start=...&finish=...
     Calculates the driving route between two USA locations, finds optimal fuel stops,
     and calculates total fuel cost based on real fuel-price data.
     """
 
+    def get(self, request, *args, **kwargs):
+        """Supports GET /api/route/?start=New+York%2C+NY&finish=Chicago%2C+IL"""
+        return self._handle_route_request(request.query_params, request)
+
     def post(self, request, *args, **kwargs):
+        """Supports POST /api/route/ with JSON body {"start": "...", "finish": "..."}"""
+        return self._handle_route_request(request.data, request)
+
+    def _handle_route_request(self, input_data, request):
         # 1. Validate request payload
-        serializer = RouteRequestSerializer(data=request.data)
+        serializer = RouteRequestSerializer(data=input_data)
         if not serializer.is_valid():
             return Response(
                 {
@@ -70,11 +79,17 @@ class RouteOptimizeView(APIView):
                 candidate_stations=candidate_stations
             )
 
-            # 6. Format final response
+            # 6. Build interactive map deep link
+            map_url = request.build_absolute_uri(
+                f"/?start={quote_plus(start_input)}&finish={quote_plus(finish_input)}"
+            )
+
+            # 7. Format final response
             response_payload = {
                 "success": True,
                 "start": start_display or start_input,
                 "destination": finish_display or finish_input,
+                "map_url": map_url,
                 "route_summary": {
                     "total_distance_miles": total_distance,
                     "total_duration_hours": duration_hours,
