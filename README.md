@@ -2,6 +2,9 @@
 
 A fast, production-ready Django REST backend API that calculates driving routes across the USA, identifies fuel stations along the highway corridor using real-world retail fuel prices, and computes the most cost-effective fuel stops so a vehicle can complete its journey safely within its 500-mile tank range.
 
+**🌐 Live Interactive App & API:** [https://fuel-route-optimizer-app.vercel.app/](https://fuel-route-optimizer-app.vercel.app/)  
+*(Alternative Mirror: [https://truck-route-fuel.vercel.app/](https://truck-route-fuel.vercel.app/))*
+
 ---
 
 ## 📋 Table of Contents

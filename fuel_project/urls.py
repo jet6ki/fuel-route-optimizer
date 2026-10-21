@@ -18,10 +18,13 @@ def demo_view(request):
             resp["Pragma"] = "no-cache"
             resp["Expires"] = "0"
             return resp
-    return HttpResponse("demo.html not found", status=404)
+def favicon_view(request):
+    """Returns empty 204 for favicon to eliminate 404 errors in browser console."""
+    return HttpResponse(status=204)
 
 
 urlpatterns = [
+    path("favicon.ico", favicon_view, name="favicon"),
     path("admin/", admin.site.urls),
     path("api/", include("api.urls")),
     path("", demo_view, name="demo-ui"),
